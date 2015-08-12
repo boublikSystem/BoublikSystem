@@ -21,6 +21,7 @@ namespace BoublikSystem.Models
         }
 
         public int SallerLocation { get; set; }
+        public string SelectedRole { get; set; }
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>

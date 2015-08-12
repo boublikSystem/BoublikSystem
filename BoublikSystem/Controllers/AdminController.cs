@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using BoublikSystem.Entities;
 using BoublikSystem.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -15,9 +16,32 @@ namespace BoublikSystem.Controllers
     public class AdminController : Controller
     {
         private static ApplicationDbContext dbContext = new ApplicationDbContext();
+        private static IEnumerable<SelectListItem> adrressList;
         private ApplicationUserManager manager = new ApplicationUserManager(new UserStore<ApplicationUser>(dbContext));
         private RoleManager<IdentityRole> roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(dbContext));
 
+        public AdminController()
+        {
+            adrressList = CreateAddresList(dbContext.SalePoints.ToList());
+        }
+        private List<SelectListItem> CreateAddresList(List<SalePoint> salesList)
+        {
+            List<SelectListItem> answer = new List<SelectListItem>();
+
+            if (salesList != null && salesList.Count > 0)
+            {
+                for (int i = 0; i < salesList.Count; i++)
+                {
+                    answer.Add(new SelectListItem
+                    {
+                        Text = salesList[i].Adress,
+                        Value = salesList[i].Id.ToString()
+                    });
+                }
+            }
+
+            return answer;
+        }
         public ActionResult Index()
         {
             return View();
@@ -67,6 +91,8 @@ namespace BoublikSystem.Controllers
         // GET: Admin/Create
         public ActionResult Create()
         {
+            ViewBag.SalePoints = adrressList;
+            ViewBag.Roles = roleManager.Roles.ToList();
             return View();
         }
 
@@ -75,11 +101,17 @@ namespace BoublikSystem.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Email,EmailConfirmed,PasswordHash,SecurityStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEndDateUtc,LockoutEnabled,AccessFailedCount,UserName")] ApplicationUser applicationUser)
+        public ActionResult Create([Bind(Include =
+            "Id,Email,EmailConfirmed,PasswordHash,SecurityStamp," +
+            "PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled," +
+            "LockoutEndDateUtc,LockoutEnabled,AccessFailedCount," +
+            "UserName,SelectedRole")] ApplicationUser applicationUser)
         {
+
             if (ModelState.IsValid)
             {
                 //todo: ошибка если нажать создать и не заполнить поля
+
 
                 if ((applicationUser.UserName == null) | (applicationUser.PasswordHash == null))
                     return View(applicationUser);
@@ -89,12 +121,13 @@ namespace BoublikSystem.Controllers
                 applicationUser.PasswordHash = hasher.HashPassword(applicationUser.PasswordHash);
 
                 manager.Create(applicationUser);
-
+                manager.AddToRole(applicationUser.Id, dbContext.Roles.Find(applicationUser.SelectedRole).Name);
                 return RedirectToAction("CrudUser");
             }
 
             return View(applicationUser);
         }
+
 
         // GET: Admin/Edit/5
         public ActionResult Edit(string id)
