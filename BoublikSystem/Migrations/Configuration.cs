@@ -20,9 +20,9 @@ namespace BoublikSystem.Migrations
         {
             AutomaticMigrationsEnabled = true;
             ContextKey = "BoublikSystem.Models.ApplicationDbContext";
-           
+
         }
-       
+
         protected override void Seed(BoublikSystem.Models.ApplicationDbContext context)
         {
 
@@ -32,7 +32,7 @@ namespace BoublikSystem.Migrations
                 var roleManager = new RoleManager<IdentityRole>(roleStore);
                 var userStore = new UserStore<ApplicationUser>(context);
                 var userManager = new UserManager<ApplicationUser>(userStore);
-                
+
                 var hasher = new PasswordHasher();
 
                 // Create list of users to add in db
@@ -40,7 +40,7 @@ namespace BoublikSystem.Migrations
                 {
                     new ApplicationUser {SallerLocation = 2, UserName = "admin", PasswordHash = hasher.HashPassword("admin"), PhoneNumber = "096-37-99-604"},
                     new ApplicationUser {SallerLocation = 2,UserName = "cook1", PasswordHash = hasher.HashPassword("cook1"), PhoneNumber = "096-37-99-604"},
-                    new ApplicationUser {SallerLocation = 3, UserName = "seller", PasswordHash = hasher.HashPassword("seller"), PhoneNumber = "096-37-99-604"}
+                    new ApplicationUser {SallerLocation = 2, UserName = "seller", PasswordHash = hasher.HashPassword("seller"), PhoneNumber = "096-37-99-604"}
                 };
 
 
@@ -65,7 +65,7 @@ namespace BoublikSystem.Migrations
                     new SalePoint {Adress = "ТРК Украина"},
                     new SalePoint {Adress = "Ак. Павлова"}
                 };
-
+                
                 // Add salepaoints and save all changes to db
                 context.SalePoints.Add(salePoints[0]);//1
                 context.SalePoints.Add(salePoints[1]);//2
@@ -76,6 +76,7 @@ namespace BoublikSystem.Migrations
                 {
                     new Product{ Name = "Бублик",MeasurePoint = "шт",Price = 5.00m},
                     new Product{ Name = "Печенье",MeasurePoint = "кг",Price = 25.00m},
+                 
                 };
 
                 context.Products.AddRange(products);
