@@ -58,14 +58,20 @@ namespace BoublikSystem.Migrations
                 userManager.AddToRole(users[0].Id, "admin");
                 userManager.AddToRole(users[1].Id, "cook");
                 userManager.AddToRole(users[2].Id, "seller");
-
+//#warning Init SelectedRole
+//                //T/ODO: ÅÑËÈ ÄÅËÀÒÜ ÄÎÁÀÂËÅÍÈÅ ÌÍÎÆÅÑÒÂÀ ĞÎËÅÉ ŞÇÅĞÓ - ÓÄÀËÈÒÜ ÁËÎÊ Init SelectedRole
+//                #region Init SelectedRole
+//                users[0].SelectedRole = "admin";
+//                users[1].SelectedRole = "cook";
+//                users[2].SelectedRole = "seller";
+//                #endregion
                 // Create shops and their location = SalePoint
                 List<SalePoint> salePoints = new List<SalePoint>
                 {
                     new SalePoint {Adress = "ÒĞÊ Óêğàèíà"},
                     new SalePoint {Adress = "Àê. Ïàâëîâà"}
                 };
-                
+
                 // Add salepaoints and save all changes to db
                 context.SalePoints.Add(salePoints[0]);//1
                 context.SalePoints.Add(salePoints[1]);//2
@@ -76,7 +82,7 @@ namespace BoublikSystem.Migrations
                 {
                     new Product{ Name = "Áóáëèê",MeasurePoint = "øò",Price = 5.00m},
                     new Product{ Name = "Ïå÷åíüå",MeasurePoint = "êã",Price = 25.00m},
-                 
+
                 };
 
                 context.Products.AddRange(products);

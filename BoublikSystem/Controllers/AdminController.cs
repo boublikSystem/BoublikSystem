@@ -61,11 +61,11 @@ namespace BoublikSystem.Controllers
                 usersRoles = manager.GetRoles(users[i].Id);
                 for (int j = 0; j < usersRoles.Count; j++)
                 {
-                    roles += usersRoles[j].ToString()+" ";
+                    roles += usersRoles[j].ToString() + " ";
                 }
 
                 // Создание модели для отображения информации о юзере
-                model.Add(new UserRoleModels {User = manager.FindById(users[i].Id), Role = roles});
+                model.Add(new UserRoleModels { User = manager.FindById(users[i].Id), Role = roles });
                 roles = null;
             }
 
@@ -105,7 +105,7 @@ namespace BoublikSystem.Controllers
             "Id,Email,EmailConfirmed,PasswordHash,SecurityStamp," +
             "PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled," +
             "LockoutEndDateUtc,LockoutEnabled,AccessFailedCount," +
-            "UserName,SelectedRole")] ApplicationUser applicationUser)
+            "UserName,SelectedRole,SallerLocation")] ApplicationUser applicationUser)
         {
 
             if (ModelState.IsValid)
@@ -132,6 +132,40 @@ namespace BoublikSystem.Controllers
         // GET: Admin/Edit/5
         public ActionResult Edit(string id)
         {
+            ViewBag.SalePoints = adrressList;
+            ViewBag.Roles = roleManager.Roles.ToList();
+
+            ApplicationUser user = manager.FindByName(id);
+            List<string> rolesId = new List<string>();
+            foreach (var role in user.Roles)
+            {
+                rolesId.Add(role.RoleId);
+            }
+
+            ViewBag.AvailableRolesForCheckboxes = rolesId;
+            Dictionary<string, bool> rolesChecked = new Dictionary<string, bool>();
+            var userRoles = user.Roles.ToList();
+
+            foreach (var role in roleManager.Roles)
+            {
+                rolesChecked.Add(role.Name, false);
+            }
+
+            for (int i = 0; i < user.Roles.Count; i++)
+            {
+                if (roleManager.RoleExists(roleManager.FindById(userRoles[i].RoleId).Name))
+                {
+                    rolesChecked[roleManager.FindById(userRoles[i].RoleId).Name] = true;
+
+                }
+                else
+                {
+                    rolesChecked[roleManager.FindById(userRoles[i].RoleId).Name] = false;
+                }
+            }
+
+            ViewBag.RolesDictionary = rolesChecked;
+
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -141,6 +175,7 @@ namespace BoublikSystem.Controllers
             {
                 return HttpNotFound();
             }
+
             return View(applicationUser);
         }
 
@@ -149,7 +184,11 @@ namespace BoublikSystem.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Email,EmailConfirmed,PasswordHash,SecurityStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEndDateUtc,LockoutEnabled,AccessFailedCount,UserName")] ApplicationUser applicationUser)
+        public ActionResult Edit([Bind(Include =
+            "Id,Email,EmailConfirmed,PasswordHash," +
+            "SecurityStamp,PhoneNumber,PhoneNumberConfirmed," +
+            "TwoFactorEnabled,LockoutEndDateUtc,LockoutEnabled," +
+            "AccessFailedCount,UserName,SelectedRole,SallerLocation")] ApplicationUser applicationUser)
         {
             if (ModelState.IsValid)
             {
@@ -157,10 +196,40 @@ namespace BoublikSystem.Controllers
 
                 var hasher = new PasswordHasher();
 
-                user.PasswordHash = hasher.HashPassword(applicationUser.PasswordHash);
 
+
+                if ((applicationUser.PasswordHash != null) && (applicationUser.PasswordHash.IndexOf(' ') == -1))
+                {
+                    user.PasswordHash = hasher.HashPassword(applicationUser.PasswordHash);
+                }
+
+                //формирование списка названий ролей по id для добавления ролей юзеру
+                List<string> r = new List<string>();
+                foreach (var roleId in Request["selectedRoles"].Split(','))
+                {
+                    r.Add(roleManager.FindByName(roleId).Name);
+
+                }
+                string[] s = new string[r.Count];
+                List<string> rolesName = new List<string>();
+                foreach (var role in roleManager.Roles)
+                {
+                    foreach (var roleUser in user.Roles)
+                    {
+                        if (roleUser.RoleId == role.Id)//сравнить если юзер имеет роль то добавить ее имя в список rolesName
+                            rolesName.Add(role.Name);
+
+                    }
+
+
+                }
+                manager.RemoveFromRoles(user.Id, rolesName.ToArray()); //delete user from all roles
+
+                manager.AddToRoles(user.Id, r.ToArray());
                 manager.Update(user);
 
+
+                //  manager.AddToRole(user.Id, dbContext.Roles.Find(applicationUser.SelectedRole).Name);
                 return RedirectToAction("CrudUser");
             }
             return View(applicationUser);
