@@ -30,10 +30,10 @@ function checkCount() {
 
     availableCount = parseInt(availableCount.innerHTML, 10);
 
-    if ((inputCount > availableCount)||(inputCount <= 0)||(inputCount.match("e"))) {
+    if ((inputCount > availableCount) || (inputCount <= 0) || (inputCount.match("e"))) {
         submit.setAttribute("disabled", "");
         alerMsg.innerHTML = "Неправильно количество товара";
-        
+
     } else {
         submit.removeAttribute("disabled");
         alerMsg.innerHTML = "";
