@@ -16,7 +16,7 @@
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
         <div class="form-group">
-            @Html.LabelFor(model => model.PasswordHash, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.PasswordHash, htmlAttributes: new { @class = "control-label col-md-2", required = "true" })
             <div class="col-md-10">
                 @Html.EditorFor(model => model.PasswordHash, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.PasswordHash, "", new { @class = "text-danger" })
@@ -24,9 +24,9 @@
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.PhoneNumber, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.PhoneNumber, htmlAttributes: new { @class = "control-label col-md-2"  })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.PhoneNumber, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.PhoneNumber, new { htmlAttributes = new { @class = "form-control" } , required = "true" })
                 @Html.ValidationMessageFor(model => model.PhoneNumber, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -34,26 +34,54 @@
         <div class="form-group">
             @Html.LabelFor(model => model.UserName, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control" , required = "true" } })
                 @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger" })
             </div>
         </div>
         <div class="form-group">
-            @Html.DropDownListFor(m => m.SelectedRole, new SelectList(ViewBag.Roles, "Id", "Name"), "--Права--", new { @class = "form-control" })
+            @*@Html.DropDownListFor(m => m.SelectedRole, new SelectList(ViewBag.Roles, "Id", "Name"), "--Права--", new { @class = "form-control" })
 
             <p style="color: #b94a48; background-color: #f2dede; border-color: #eed3d7; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px">
                 <strong>@Html.ValidationMessageFor(model => model.SallerLocation)</strong>
 
-            </p>
+            </p>*@
+            @Html.LabelFor(m => m.SallerLocation, "Права пользователя")
+            @foreach (var role in (Dictionary<string, bool>)ViewBag.RolesDictionary)
+            {
+
+                if (role.Value == true)
+                {
+                    <div class="checkbox">
+                        <label><input type="checkbox" value="@role.Key" name="selectedRoles" checked="checked">@role.Key</label>
+                    </div>
+                }
+                else
+                {
+                    <div class="checkbox">
+                        <label><input type="checkbox" value="@role.Key" name="selectedRoles">@role.Key</label>
+                    </div>
+                }
+            }
+            <br />
+            <div class="col-md-10">
+                @Html.LabelFor(m => m.SallerLocation, "Точка расположения")
+                @Html.DropDownListFor(m => m.SallerLocation, new SelectList(ViewBag.SalePoints, "Value", "Text"),
+               "--Точка расположения--", new { @class = "form-control" })
+
+                <p style="color: #b94a48; background-color: #f2dede; border-color: #eed3d7; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px">
+                    <strong>@Html.ValidationMessageFor(model => model.SallerLocation)</strong>
+
+                </p>
+            </div>
         </div>
-        <div class="form-group">
+        @*<div class="form-group">
             @Html.DropDownListFor(m => m.SallerLocation, new SelectList(ViewBag.SalePoints, "Value", "Text"), "--Точка расположения--", new { @class = "form-control" })
 
             <p style="color: #b94a48; background-color: #f2dede; border-color: #eed3d7; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px">
                 <strong>@Html.ValidationMessageFor(model => model.SallerLocation)</strong>
 
             </p>
-        </div>
+        </div>*@
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">

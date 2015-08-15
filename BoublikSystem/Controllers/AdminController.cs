@@ -42,6 +42,42 @@ namespace BoublikSystem.Controllers
 
             return answer;
         }
+        /// <summary>
+        /// Устанавливает значения группы элементов CheckBox в положение true или false
+        /// в зависимости от количества пренадлежащих ролей пользователю.
+        /// </summary>
+        /// <param name="id">Id пользователя</param>
+        private void InitRoleValuesForCheckBoxes(string id = "")
+        {
+            ApplicationUser user = manager.FindByName(id);
+            Dictionary<string, bool> rolesChecked =
+                new Dictionary<string, bool>(); //создаем словарь для отображения ролей(CheckBoxes in View)
+
+            foreach (var role in roleManager.Roles) // инициализируем словарь дефолтными значениями
+            {
+                rolesChecked.Add(role.Name, false);
+            }
+
+            if (id != "")//если юзер не новый
+            {
+                var userRoles = user.Roles.ToList();    //получаем роли текущего пользователя
+
+                for (int i = 0; i < user.Roles.Count; i++)  //если находим имя роли в менеджере - устанавливаем true в значение    
+                {                                           //словаря, иначе false. Таким образом устанавливаются положения checkbox-ов
+                    if (roleManager.RoleExists(roleManager.FindById(userRoles[i].RoleId).Name))
+                    {
+                        rolesChecked[roleManager.FindById(userRoles[i].RoleId).Name] = true;
+
+                    }
+                    else
+                    {
+                        rolesChecked[roleManager.FindById(userRoles[i].RoleId).Name] = false;
+                    }
+                }
+            }
+            ViewBag.RolesDictionary = rolesChecked; //передаем словарь в представление
+
+        }
         public ActionResult Index()
         {
             return View();
@@ -93,6 +129,7 @@ namespace BoublikSystem.Controllers
         {
             ViewBag.SalePoints = adrressList;
             ViewBag.Roles = roleManager.Roles.ToList();
+            InitRoleValuesForCheckBoxes();
             return View();
         }
 
@@ -119,53 +156,28 @@ namespace BoublikSystem.Controllers
                 var hasher = new PasswordHasher();
 
                 applicationUser.PasswordHash = hasher.HashPassword(applicationUser.PasswordHash);
-
                 manager.Create(applicationUser);
-                manager.AddToRole(applicationUser.Id, dbContext.Roles.Find(applicationUser.SelectedRole).Name);
+
+                List<string> r = new List<string>();
+                try
+                {
+                    foreach (var roleId in Request["selectedRoles"].Split(','))
+                    {
+                        r.Add(roleManager.FindByName(roleId).Name);
+
+                    }
+                }
+                catch { }
+                manager.AddToRoles(applicationUser.Id,r.ToArray());
                 return RedirectToAction("CrudUser");
             }
 
             return View(applicationUser);
         }
-
-
+    
         // GET: Admin/Edit/5
         public ActionResult Edit(string id)
         {
-            ViewBag.SalePoints = adrressList;
-            ViewBag.Roles = roleManager.Roles.ToList();
-
-            ApplicationUser user = manager.FindByName(id);
-            List<string> rolesId = new List<string>();
-            foreach (var role in user.Roles)
-            {
-                rolesId.Add(role.RoleId);
-            }
-
-            ViewBag.AvailableRolesForCheckboxes = rolesId;
-            Dictionary<string, bool> rolesChecked = new Dictionary<string, bool>();
-            var userRoles = user.Roles.ToList();
-
-            foreach (var role in roleManager.Roles)
-            {
-                rolesChecked.Add(role.Name, false);
-            }
-
-            for (int i = 0; i < user.Roles.Count; i++)
-            {
-                if (roleManager.RoleExists(roleManager.FindById(userRoles[i].RoleId).Name))
-                {
-                    rolesChecked[roleManager.FindById(userRoles[i].RoleId).Name] = true;
-
-                }
-                else
-                {
-                    rolesChecked[roleManager.FindById(userRoles[i].RoleId).Name] = false;
-                }
-            }
-
-            ViewBag.RolesDictionary = rolesChecked;
-
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
@@ -175,6 +187,12 @@ namespace BoublikSystem.Controllers
             {
                 return HttpNotFound();
             }
+
+            ViewBag.SalePoints = adrressList;
+            ViewBag.Roles = roleManager.Roles.ToList();
+
+            InitRoleValuesForCheckBoxes(id);
+
 
             return View(applicationUser);
         }
@@ -188,7 +206,7 @@ namespace BoublikSystem.Controllers
             "Id,Email,EmailConfirmed,PasswordHash," +
             "SecurityStamp,PhoneNumber,PhoneNumberConfirmed," +
             "TwoFactorEnabled,LockoutEndDateUtc,LockoutEnabled," +
-            "AccessFailedCount,UserName,SelectedRole,SallerLocation")] ApplicationUser applicationUser)
+            "AccessFailedCount,UserName,SallerLocation")] ApplicationUser applicationUser)
         {
             if (ModelState.IsValid)
             {
@@ -202,15 +220,21 @@ namespace BoublikSystem.Controllers
                 {
                     user.PasswordHash = hasher.HashPassword(applicationUser.PasswordHash);
                 }
-
+                if (applicationUser.SallerLocation != 0)
+                {
+                    user.SallerLocation = applicationUser.SallerLocation;
+                }
                 //формирование списка названий ролей по id для добавления ролей юзеру
                 List<string> r = new List<string>();
-                foreach (var roleId in Request["selectedRoles"].Split(','))
+                try
                 {
-                    r.Add(roleManager.FindByName(roleId).Name);
+                    foreach (var roleId in Request["selectedRoles"].Split(','))
+                    {
+                        r.Add(roleManager.FindByName(roleId).Name);
 
+                    }
                 }
-                string[] s = new string[r.Count];
+                catch { }
                 List<string> rolesName = new List<string>();
                 foreach (var role in roleManager.Roles)
                 {
@@ -220,7 +244,6 @@ namespace BoublikSystem.Controllers
                             rolesName.Add(role.Name);
 
                     }
-
 
                 }
                 manager.RemoveFromRoles(user.Id, rolesName.ToArray()); //delete user from all roles

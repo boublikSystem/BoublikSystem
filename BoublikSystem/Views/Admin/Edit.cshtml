@@ -41,107 +41,43 @@
                 @Html.ValidationMessageFor(model => model.PasswordHash, "", new { @class = "text-danger" })
             </div>
         </div>
-        <table>
-            <thead><strong>Права пользователя</strong></thead>
-
-            @foreach (var role in Model.Roles)
+        <div class="col-md-10">
+            @Html.LabelFor(m => m.SallerLocation, "Права пользователя")
+            @foreach (var role in (Dictionary<string, bool>)ViewBag.RolesDictionary)
             {
 
-                foreach (var r in ViewBag.Roles)
+                if (role.Value == true)
                 {
-                    if (r.Id == role.RoleId)
-                    {
-                        <tr>
-                            <td>@r.Name</td>
-
-                        </tr>
-
-                    }
-
+                    <div class="checkbox">
+                        <label><input type="checkbox" value="@role.Key" name="selectedRoles" checked="checked">@role.Key</label>
+                    </div>
                 }
-
-            }
-        </table>
-        <br />
-        <hr />
-
-
-        @foreach (var role in (Dictionary<string, bool>)ViewBag.RolesDictionary)
-        {
-
-            if (role.Value == true)
-            {
-                <div class="checkbox">
-                    <label><input type="checkbox" value="@role.Key" name="selectedRoles" checked="checked">@role.Key</label>
-                </div>
-            }
-            else
-            {
-                <div class="checkbox">
-                    <label><input type="checkbox" value="@role.Key" name="selectedRoles">@role.Key</label>
-                </div>
-            }
-            @*foreach (var roleId in ViewBag.AvailableRolesForCheckboxes)
+                else
                 {
+                    <div class="checkbox">
+                        <label><input type="checkbox" value="@role.Key" name="selectedRoles">@role.Key</label>
+                    </div>
+                }
+            }
+            <br/>
+            <div class="col-md-10">
+                @Html.LabelFor(m => m.SallerLocation, "Точка расположения")
+                @Html.DropDownListFor(m => m.SallerLocation, new SelectList(ViewBag.SalePoints, "Value", "Text"),
+               "--Точка расположения--", new { @class = "form-control"})
 
-                    if (roleId == role.Id)
-                    {
-                        <div class="checkbox">
-                            <label><input type="checkbox" value="@role.Id" name="selectedRoles" checked="checked">@role.Name</label>
-                        </div>
-                    }
-                    else if (roleId != role.Id)
-                    {
-                        <div class="checkbox">
-                            <label><input type="checkbox" value="@role.Id" name="selectedRoles">@role.Name</label>
-                        </div>
-                    }*@
+                <p style="color: #b94a48; background-color: #f2dede; border-color: #eed3d7; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px">
+                    <strong>@Html.ValidationMessageFor(model => model.SallerLocation)</strong>
 
-        }
-        @*@foreach (Dictionary<string,bool> role in ViewBag.RolesChecked)
-             {
-                 for (int i = 0; i < role.Count; i++)
-                 {
-                      @Html.CheckBoxFor(m => role[i.ToString()])
-                 }
-
-            }*@
-
-
-
-
-        <br />
-        <div class="form-group">
-            @Html.DropDownListFor(m => m.SelectedRole, new SelectList(ViewBag.Roles, "Id", "Name"), "--Права--", new { @class = "form-control" })
-
-            <p style="color: #b94a48; background-color: #f2dede; border-color: #eed3d7; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px">
-                <strong>@Html.ValidationMessageFor(model => model.SallerLocation)</strong>
-
-            </p>
+                </p>
+            </div>
         </div>
-        <div class="form-group">
-            @Html.DropDownListFor(m => m.SallerLocation, new SelectList(ViewBag.SalePoints, "Value", "Text"), "--Точка расположения--", new { @class = "form-control" })
-
-            <p style="color: #b94a48; background-color: #f2dede; border-color: #eed3d7; -webkit-border-radius: 4px; -moz-border-radius: 4px; border-radius: 4px">
-                <strong>@Html.ValidationMessageFor(model => model.SallerLocation)</strong>
-
-            </p>
-        </div>
-
+    
 
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="Save" class="btn btn-default" />
             </div>
         </div>
-        <p>
-            test data
-        </p>
-        <p>
-            SallerLocation = @Model.SallerLocation<br />
-            SelectedRole = @Model.SelectedRole
-            RolesCount = @Model.Roles.Count
-        </p>
     </div>
 }
 
