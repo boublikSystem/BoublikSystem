@@ -308,6 +308,7 @@
     <Content Include="Views\Cook\ProductDetails.cshtml" />
     <Content Include="Views\Cook\EditProduct.cshtml" />
     <Content Include="Views\Cook\ShowProducts.cshtml" />
+    <Content Include="Views\Sale\_Calculate.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
