@@ -4,21 +4,21 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Index</h2>
+<h2>Менеджер аккаунтов</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Новый пользователь", "Create")
 </p>
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.User.UserName)
+            @Html.DisplayName("Имя")
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.User.PhoneNumber)
+            @Html.DisplayName("Номер телефона")
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Role)
+            @Html.DisplayName("Права")
         </th>
         <th>
             
@@ -37,9 +37,9 @@
             @Html.DisplayFor(modelItem => item.Role)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id = item.User.UserName }) |
-            @Html.ActionLink("Details", "Details", new { id = item.User.UserName }) |
-            @Html.ActionLink("Delete", "Delete", new { id = item.User.UserName })
+            @Html.ActionLink("Редактировать", "Edit", new { id = item.User.UserName }) |
+            @Html.ActionLink("Сведения", "Details", new { id = item.User.UserName }) |
+            @Html.ActionLink("Удалить", "Delete", new { id = item.User.UserName })
         </td>
     </tr>
 }

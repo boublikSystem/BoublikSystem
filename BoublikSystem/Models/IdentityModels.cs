@@ -1,10 +1,13 @@
 ﻿using System.Data.Entity;
 using System.Linq;
+using System.Net.Cache;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using BoublikSystem.Entities;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using System.ComponentModel.DataAnnotations;
+
 
 namespace BoublikSystem.Models
 {
@@ -19,7 +22,7 @@ namespace BoublikSystem.Models
             // Add custom user claims here
             return userIdentity;
         }
-
+       // [Required(ErrorMessage = "The {0} must be at least {2} characters long.")]
         public int SallerLocation { get; set; }
         public string SelectedRole { get; set; }
     }

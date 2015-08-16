@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace BoublikSystem.Models
 {
@@ -27,7 +28,7 @@ namespace BoublikSystem.Models
     {
         [Required]
         public string Provider { get; set; }
-
+        
         [Required]
         [Display(Name = "Code")]
         public string Code { get; set; }
@@ -85,7 +86,79 @@ namespace BoublikSystem.Models
         public string ConfirmPassword { get; set; }
     }
     //Create Function
+    /// <summary>
+    /// Contains fields for Add user using validation. 
+    ///  </summary>
+    public class RegisterUserViewModel
+    {
+       [Required]
+        [Phone]
+        [Display(Name = "Номер телефона")]
+        public string PhoneNumber { get; set; }
 
+      //  [Required]
+        [DataType(DataType.Password)]
+        [Display(Name = "Пароль")]
+        public string PasswordHash { get; set; }
+
+        [Required]
+        [Display(Name = "Имя")]
+        public string UserName { get; set; }
+        //[Required]
+        [Display(Name = "Точка расположения")]
+        public int SallerLocation { get; set; } 
+
+    }
+    //Create Function
+    /// <summary>
+    /// Contains fields for Edit user using validation. 
+    ///  </summary>
+    public class EditUserViewModel
+    {
+        [Required]
+        public string Id { get; set; }
+        [Required]
+        [Phone]
+        [Display(Name = "Номер телефона")]
+        public string PhoneNumber { get; set; }
+
+        //  [Required]
+        [DataType(DataType.Password)]
+        [Display(Name = "Пароль")]
+        public string PasswordHash { get; set; }
+
+        [Required]
+        [Display(Name = "Имя")]
+        public string UserName { get; set; }
+        //[Required]
+        [Display(Name = "Точка расположения")]
+        public int SallerLocation { get; set; }
+
+    }
+    public class DetailsUserViewModel
+    {
+        [Required]
+        public string Id { get; set; }
+        [Required]
+        [Phone]
+        [Display(Name = "Номер телефона")]
+        public string PhoneNumber { get; set; }
+
+        //  [Required]
+        [DataType(DataType.Password)]
+        [Display(Name = "Пароль")]
+        public string PasswordHash { get; set; }
+
+        [Required]
+        [Display(Name = "Имя")]
+        public string UserName { get; set; }
+        //[Required]
+        [Display(Name = "Точка расположения")]
+        public int SallerLocation { get; set; }
+        [Display(Name = "Права")]
+        public ICollection<IdentityUserRole> Roles { get; set; }
+
+    }
     public class ResetPasswordViewModel
     {
         [Required]
