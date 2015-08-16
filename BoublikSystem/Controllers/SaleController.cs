@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -28,11 +29,22 @@ namespace BoublikSystem.Controllers
             return View(_recivedProducts);
         }
 
+        /// <summary>
+        /// Вызов диалогового окнда для уточнения количества
+        /// </summary>
+        /// <param name="productId">Ид продукта</param>
+        /// <returns></returns>
         public PartialViewResult AskForCount(int productId)
         {
             return PartialView(productId);
         }
 
+        /// <summary>
+        /// Метод обрабатывает нажатие на ссылку "Добавить"
+        /// и добавляет продукт в чек
+        /// </summary>
+        /// <param name="productId">Ид продукта</param>
+        /// <returns></returns>
         public PartialViewResult AddProductToBill(int productId)
         {
             Product recivedProduct = _recivedProducts.First(p => p.Key.Id == productId).Key;
@@ -52,6 +64,15 @@ namespace BoublikSystem.Controllers
             }
 
             return PartialView(_currentBill);
+        }
+
+        public PartialViewResult DeleteProductFromBill(int productId)
+        {
+            Product productToDelete = _recivedProducts.First(p => p.Key.Id == productId).Key;
+
+            _currentBill.Remove(productToDelete);
+
+            return PartialView("AddProductToBill", _currentBill);
         }
 
         /// <summary>
@@ -85,7 +106,13 @@ namespace BoublikSystem.Controllers
             return allProductsWithCount;
         }
 
-        [HttpGet]
+        /// <summary>
+        /// Метод изменяет количество (счетчик) полученных продуктов
+        /// Обрабатывает добавление
+        /// </summary>
+        /// <param name="productId">Ид продукта</param>
+        /// <param name="productCount">Количество продукта</param>
+        /// <returns></returns>
         public ActionResult ChangeCount(int? productId, double? productCount)
         {
             Product product = _recivedProducts.Keys.First(p => p.Id == productId);
@@ -97,5 +124,35 @@ namespace BoublikSystem.Controllers
             return PartialView("_ChangeCountProduct", strToChange);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="productId"></param>
+        /// <param name="productCount"></param>
+        /// <param name="notNeeded"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult ChangeCount(int? productId, double? productCount, int? notNeeded)
+        {
+            Product product = _recivedProducts.Keys.First(p => p.Id == productId);
+
+            _recivedProducts[product] += Convert.ToDouble(productCount);
+
+            string strToChange = string.Format("{0} {1}", _recivedProducts[product], product.MeasurePoint);
+
+            return PartialView("_ChangeCountProduct", strToChange);
+        }
+
+        public ActionResult Calculate()
+        {
+            decimal amount = CalculateAmount();
+
+            return PartialView("_Calculate",amount);
+        }
+
+        private decimal CalculateAmount()
+        {
+            return _currentBill.Sum(item => item.Key.Price*(decimal) item.Value);
+        }
     }
 }

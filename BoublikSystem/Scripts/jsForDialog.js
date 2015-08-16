@@ -17,7 +17,26 @@ $("#applyId").click(function () {
         data: { productId: productId, productCount: countId }
     });
 
-   $("#modDialog").modal("hide");
+    $("#modDialog").modal("hide");
 
 });
+
+function checkCount() {
+    var productId = document.getElementById("hiddenId").value;
+    var availableCount = document.getElementById("update" + productId);
+    var inputCount = document.getElementById("countId").value;
+    var submit = document.getElementById("applyId");
+    var alerMsg = document.getElementById("alerMsg");
+
+    availableCount = parseInt(availableCount.innerHTML, 10);
+
+    if ((inputCount > availableCount) || (inputCount <= 0) || (inputCount.match("e"))) {
+        submit.setAttribute("disabled", "");
+        alerMsg.innerHTML = "Неправильно количество товара";
+
+    } else {
+        submit.removeAttribute("disabled");
+        alerMsg.innerHTML = "";
+    }
+}
 

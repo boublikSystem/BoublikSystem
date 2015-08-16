@@ -99,8 +99,8 @@ namespace BoublikSystem.Migrations
 
                 List<ProductToWayBill> productToWay = new List<ProductToWayBill>
                 {
-                    new ProductToWayBill { WayBillId = 1, ProductId = 3,Count = 20},
-                    new ProductToWayBill {WayBillId = 1,ProductId = 3,Count = 5}
+                    new ProductToWayBill { WayBillId = 1, ProductId = 2,Count = 20},
+                    new ProductToWayBill {WayBillId = 1,ProductId = 2,Count = 5}
                 };
 
                 context.ProductToWayBills.AddRange(productToWay);
