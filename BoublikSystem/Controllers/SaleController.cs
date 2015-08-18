@@ -116,7 +116,7 @@ namespace BoublikSystem.Controllers
         public ActionResult ChangeCount(int? productId, double? productCount)
         {
             Product product = _recivedProducts.Keys.First(p => p.Id == productId);
-
+            
             _recivedProducts[product] -= Convert.ToDouble(productCount);
 
             string strToChange = string.Format("{0} {1}", _recivedProducts[product], product.MeasurePoint);
