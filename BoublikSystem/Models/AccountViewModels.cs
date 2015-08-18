@@ -28,7 +28,7 @@ namespace BoublikSystem.Models
     {
         [Required]
         public string Provider { get; set; }
-        
+
         [Required]
         [Display(Name = "Code")]
         public string Code { get; set; }
@@ -91,22 +91,22 @@ namespace BoublikSystem.Models
     ///  </summary>
     public class RegisterUserViewModel
     {
-       [Required]
+        [Required(ErrorMessage = "Поле {0} не должно быть пустым.")]
         [Phone]
         [Display(Name = "Номер телефона")]
         public string PhoneNumber { get; set; }
 
-      //  [Required]
+        //  [Required]
         [DataType(DataType.Password)]
         [Display(Name = "Пароль")]
         public string PasswordHash { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Поле {0} не должно быть пустым.")]
         [Display(Name = "Имя")]
         public string UserName { get; set; }
-        //[Required]
+        [Required(ErrorMessage = "Не выбран элемент {0}.")]
         [Display(Name = "Точка расположения")]
-        public int SallerLocation { get; set; } 
+        public int SallerLocation { get; set; }
 
     }
     //Create Function
@@ -117,7 +117,7 @@ namespace BoublikSystem.Models
     {
         [Required]
         public string Id { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Поле {0} не должно быть пустым.")]
         [Phone]
         [Display(Name = "Номер телефона")]
         public string PhoneNumber { get; set; }
@@ -127,10 +127,10 @@ namespace BoublikSystem.Models
         [Display(Name = "Пароль")]
         public string PasswordHash { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Поле {0} не должно быть пустым.")]
         [Display(Name = "Имя")]
         public string UserName { get; set; }
-        //[Required]
+        [Required(ErrorMessage = "Не выбран элемент {0}.")]
         [Display(Name = "Точка расположения")]
         public int SallerLocation { get; set; }
 

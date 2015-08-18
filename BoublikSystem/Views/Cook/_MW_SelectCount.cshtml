@@ -1,14 +1,15 @@
-@using System.Web.UI.WebControls
+п»ї@using System.Web.UI.WebControls
 
 @using System.Activities.Validation
 @using BoublikSystem.Entities
 @*model IDictionary<BoublikSystem.Entities.Product,BoublikSystem.Entities.ProductToWayBill>*@
 @*model IEnumerable<BoublikSystem.Entities.ProductToWayBill>*@
 @model int
+    
 <div class="modal-content">
 
     <div class="modal-body">
-        <h3>Введите необходимое количество</h3>
+        <h3>Р’РІРµРґРёС‚Рµ РЅРµРѕР±С…РѕРґРёРјРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ</h3>
 
         @using (Ajax.BeginForm("_AddProductToWayBill", "Cook", new { id = Model }, new AjaxOptions() { UpdateTargetId = "selectedProducts", OnSuccess = "onSuccess" }))
         {
@@ -16,14 +17,14 @@
             <input type="text" class="form-control" id="countfld" name="countField" value="" required pattern="[0-9/,/.]+">
 
             <label for="countfld"></label>
-            <input type="submit" id="applyId" value="Принять" />
+            <input type="submit" id="applyId" value="РџСЂРёРЅСЏС‚СЊ" />
         }
 
-        <p>Название модели: </p>
+      
     </div>
 
 </div>
-<!--не нужно, так как скрипт ниже  делает проверку ввода-->
+<!--РЅРµ РЅСѓР¶РЅРѕ, С‚Р°Рє РєР°Рє СЃРєСЂРёРїС‚ РЅРёР¶Рµ  РґРµР»Р°РµС‚ РїСЂРѕРІРµСЂРєСѓ РІРІРѕРґР°-->
 @*<script type="text/javascript">  
       $(function () {
           $('#applyId').click(function () {
@@ -31,7 +32,7 @@
           });
       })
 </script>*@
-<!--вешается на событие OnSuccess для аякс-формы. Скрывает модальное окно после подтверждения формы-->
+<!--РІРµС€Р°РµС‚СЃСЏ РЅР° СЃРѕР±С‹С‚РёРµ OnSuccess РґР»СЏ Р°СЏРєСЃ-С„РѕСЂРјС‹. РЎРєСЂС‹РІР°РµС‚ РјРѕРґР°Р»СЊРЅРѕРµ РѕРєРЅРѕ РїРѕСЃР»Рµ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ С„РѕСЂРјС‹-->
 <script type="text/javascript"> 
     
         function onSuccess () {
