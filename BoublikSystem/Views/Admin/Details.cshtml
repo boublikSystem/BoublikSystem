@@ -1,13 +1,13 @@
-﻿@model BoublikSystem.Models.ApplicationUser
+﻿@model BoublikSystem.Models.DetailsUserViewModel
 
 @{
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
+<h2>Сведения</h2>
 
 <div>
-    <h4>ApplicationUser</h4>
+   
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -26,16 +26,42 @@
             @Html.DisplayFor(model => model.PhoneNumber)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.SelectedRole)
+            @Html.DisplayNameFor(model => model.SallerLocation)
         </dt>
 
         <dd>
-            @Html.DisplayFor(model => model.SallerLocation)
-        </dd>
+            @foreach (var point in (IEnumerable<SelectListItem>)ViewBag.SalePoints)
+        {
 
-    </dl>
+            if (point.Text==ViewBag.SalePoint)
+            {
+                @Html.DisplayFor(model => point.Text)
+            }
+
+
+        }
+    </dd>
+    <dt>
+        @Html.DisplayNameFor(model => model.Roles)
+    </dt>
+
+    <dd>
+
+        @foreach (var role in (Dictionary<string, bool>)ViewBag.RolesDictionary)
+        {
+
+            if (role.Value)
+            {
+                @Html.DisplayFor(model => role.Key)
+            }
+
+
+        }
+    </dd>
+
+</dl>
 </div>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.UserName }) |
-    @Html.ActionLink("Back to List", "CrudUser")
+    @Html.ActionLink("Редактировать", "Edit", new { id = Model.UserName }) |
+    @Html.ActionLink("Назад к списку", "CrudUser")
 </p>

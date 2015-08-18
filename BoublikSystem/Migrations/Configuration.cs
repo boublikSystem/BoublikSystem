@@ -1,4 +1,4 @@
-
+Ôªø
 
 using System.Collections.Generic;
 using BoublikSystem.Entities;
@@ -58,30 +58,32 @@ namespace BoublikSystem.Migrations
                 userManager.AddToRole(users[0].Id, "admin");
                 userManager.AddToRole(users[1].Id, "cook");
                 userManager.AddToRole(users[2].Id, "seller");
-//#warning Init SelectedRole
-//                //T/ODO: ≈—À» ƒ≈À¿“‹ ƒŒ¡¿¬À≈Õ»≈ ÃÕŒ∆≈—“¬¿ –ŒÀ≈… ﬁ«≈–” - ”ƒ¿À»“‹ ¡ÀŒ  Init SelectedRole
-//                #region Init SelectedRole
-//                users[0].SelectedRole = "admin";
-//                users[1].SelectedRole = "cook";
-//                users[2].SelectedRole = "seller";
-//                #endregion
+                //#warning Init SelectedRole
+                //                //T/ODO: –ï–°–õ–ò –î–ï–õ–ê–¢–¨ –î–û–ë–ê–í–õ–ï–ù–ò–ï –ú–ù–û–ñ–ï–°–¢–í–ê –†–û–õ–ï–ô –Æ–ó–ï–†–£ - –£–î–ê–õ–ò–¢–¨ –ë–õ–û–ö Init SelectedRole
+                //                #region Init SelectedRole
+                //                users[0].SelectedRole = "admin";
+                //                users[1].SelectedRole = "cook";
+                //                users[2].SelectedRole = "seller";
+                //                #endregion
                 // Create shops and their location = SalePoint
                 List<SalePoint> salePoints = new List<SalePoint>
                 {
-                    new SalePoint {Adress = "“–  ”Í‡ËÌ‡"},
-                    new SalePoint {Adress = "¿Í. œ‡‚ÎÓ‚‡"}
+                    new SalePoint {Adress = "–ù–µ—Ç"},
+                    new SalePoint {Adress = "–¢–†–ö –£–∫—Ä–∞–∏–Ω–∞"},
+                    new SalePoint {Adress = "–ê–∫. –ü–∞–≤–ª–æ–≤–∞"}
                 };
 
                 // Add salepaoints and save all changes to db
                 context.SalePoints.Add(salePoints[0]);//1
                 context.SalePoints.Add(salePoints[1]);//2
+                context.SalePoints.Add(salePoints[2]);//3
                 context.SaveChanges();
 
                 // Create a list of product
                 List<Product> products = new List<Product>
                 {
-                    new Product{ Name = "¡Û·ÎËÍ",MeasurePoint = "¯Ú",Price = 5.00m},
-                    new Product{ Name = "œÂ˜ÂÌ¸Â",MeasurePoint = "Í„",Price = 25.00m},
+                    new Product{ Name = "–ë—É–±–ª–∏–∫",MeasurePoint = "—à—Ç",Price = 5.00m},
+                    new Product{ Name = "–ü–µ—á–µ–Ω—å–µ",MeasurePoint = "–∫–≥",Price = 25.00m},
 
                 };
 

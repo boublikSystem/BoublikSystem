@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using BoublikSystem.Entities;
@@ -13,16 +14,17 @@ using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace BoublikSystem.Controllers
 {
+    [Authorize(Roles = "admin")]
     public class AdminController : Controller
     {
         private static ApplicationDbContext dbContext = new ApplicationDbContext();
         private static IEnumerable<SelectListItem> adrressList;
         private ApplicationUserManager manager = new ApplicationUserManager(new UserStore<ApplicationUser>(dbContext));
         private RoleManager<IdentityRole> roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(dbContext));
-
+        private readonly List<SalePoint> _addrlst = dbContext.SalePoints.ToList();//костыль //TODO: можно делать стандартно: принимать в представлении Id and Address
         public AdminController()
         {
-            adrressList = CreateAddresList(dbContext.SalePoints.ToList());
+            adrressList = CreateAddresList(_addrlst);
         }
         private List<SelectListItem> CreateAddresList(List<SalePoint> salesList)
         {
@@ -42,6 +44,43 @@ namespace BoublikSystem.Controllers
 
             return answer;
         }
+        /// <summary>
+        /// Устанавливает значения группы элементов CheckBox в положение true или false
+        /// в зависимости от количества пренадлежащих ролей пользователю.
+        /// </summary>
+        /// <param name="id">Id пользователя</param>
+        private void InitRoleValuesForCheckBoxes(string id = "")
+        {
+            ApplicationUser user = manager.FindByName(id);
+            
+            Dictionary<string, bool> rolesChecked =
+                new Dictionary<string, bool>(); //создаем словарь для отображения ролей(CheckBoxes in View)
+
+            foreach (var role in roleManager.Roles) // инициализируем словарь дефолтными значениями
+            {
+                rolesChecked.Add(role.Name, false);
+            }
+
+            if (id != "")//если юзер не новый
+            {
+                var userRoles = user.Roles.ToList();    //получаем роли текущего пользователя
+
+                for (int i = 0; i < user.Roles.Count; i++)  //если находим имя роли в менеджере - устанавливаем true в значение    
+                {                                           //словаря, иначе false. Таким образом устанавливаются положения checkbox-ов
+                    if (roleManager.RoleExists(roleManager.FindById(userRoles[i].RoleId).Name))
+                    {
+                        rolesChecked[roleManager.FindById(userRoles[i].RoleId).Name] = true;
+
+                    }
+                    else
+                    {
+                        rolesChecked[roleManager.FindById(userRoles[i].RoleId).Name] = false;
+                    }
+                }
+            }
+            ViewBag.RolesDictionary = rolesChecked; //передаем словарь в представление
+
+        }
         public ActionResult Index()
         {
             return View();
@@ -57,7 +96,7 @@ namespace BoublikSystem.Controllers
 
             for (int i = 0; i < users.Count; i++)
             {
-                // Полечение всех ролей для юзера
+                // Получение всех ролей для юзера
                 usersRoles = manager.GetRoles(users[i].Id);
                 for (int j = 0; j < usersRoles.Count; j++)
                 {
@@ -81,11 +120,34 @@ namespace BoublikSystem.Controllers
             }
             //todo : начни отсюда
             ApplicationUser applicationUser = manager.FindByName(id);
+            DetailsUserViewModel apUsr = new DetailsUserViewModel()
+            {
+                Id = applicationUser.Id,
+                PasswordHash = applicationUser.PasswordHash,
+                SallerLocation = applicationUser.SallerLocation,
+                UserName = applicationUser.UserName,
+                Roles = applicationUser.Roles,
+                PhoneNumber = applicationUser.PhoneNumber
+            };
+            
+            
             if (applicationUser == null)
             {
                 return HttpNotFound();
             }
-            return View(applicationUser);
+            ViewBag.SalePoints = adrressList;
+            ViewBag.Roles = roleManager.Roles.ToList();
+            foreach (var point in adrressList)
+            {
+                if (point.Value==applicationUser.SallerLocation.ToString())
+                {
+                    ViewBag.SalePoint = point.Text;
+                }
+                
+            }
+           InitRoleValuesForCheckBoxes(id);
+
+            return View(apUsr);
         }
 
         // GET: Admin/Create
@@ -93,6 +155,7 @@ namespace BoublikSystem.Controllers
         {
             ViewBag.SalePoints = adrressList;
             ViewBag.Roles = roleManager.Roles.ToList();
+            InitRoleValuesForCheckBoxes();
             return View();
         }
 
@@ -101,82 +164,80 @@ namespace BoublikSystem.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include =
+        public async Task<ActionResult> Create([Bind(Include =
             "Id,Email,EmailConfirmed,PasswordHash,SecurityStamp," +
             "PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled," +
             "LockoutEndDateUtc,LockoutEnabled,AccessFailedCount," +
-            "UserName,SelectedRole,SallerLocation")] ApplicationUser applicationUser)
+            "UserName,SallerLocation")]RegisterUserViewModel appuserReg)
         {
-
-            if (ModelState.IsValid)
+           
+            ApplicationUser applicationUser = new ApplicationUser()
             {
+                UserName = appuserReg.UserName,PasswordHash = appuserReg.PasswordHash,
+                PhoneNumber = appuserReg.PhoneNumber,SallerLocation = appuserReg.SallerLocation
+            };
+            ViewBag.SalePoints = adrressList;
+            ViewBag.Roles = roleManager.Roles.ToList();
+            InitRoleValuesForCheckBoxes();
+            if (ModelState.IsValid)
+            { 
                 //todo: ошибка если нажать создать и не заполнить поля
 
 
                 if ((applicationUser.UserName == null) | (applicationUser.PasswordHash == null))
-                    return View(applicationUser);
+                    return View(appuserReg);
 
                 var hasher = new PasswordHasher();
 
                 applicationUser.PasswordHash = hasher.HashPassword(applicationUser.PasswordHash);
-
                 manager.Create(applicationUser);
-                manager.AddToRole(applicationUser.Id, dbContext.Roles.Find(applicationUser.SelectedRole).Name);
+
+                List<string> r = new List<string>();
+                try
+                {
+                    foreach (var roleId in Request["selectedRoles"].Split(','))
+                    {
+                        r.Add(roleManager.FindByName(roleId).Name);
+
+                    }
+                }
+                catch { }
+                manager.AddToRoles(applicationUser.Id,r.ToArray());
                 return RedirectToAction("CrudUser");
             }
-
-            return View(applicationUser);
+           
+           
+            return View(appuserReg);
         }
-
-
+    
         // GET: Admin/Edit/5
         public ActionResult Edit(string id)
         {
-            ViewBag.SalePoints = adrressList;
-            ViewBag.Roles = roleManager.Roles.ToList();
-
-            ApplicationUser user = manager.FindByName(id);
-            List<string> rolesId = new List<string>();
-            foreach (var role in user.Roles)
-            {
-                rolesId.Add(role.RoleId);
-            }
-
-            ViewBag.AvailableRolesForCheckboxes = rolesId;
-            Dictionary<string, bool> rolesChecked = new Dictionary<string, bool>();
-            var userRoles = user.Roles.ToList();
-
-            foreach (var role in roleManager.Roles)
-            {
-                rolesChecked.Add(role.Name, false);
-            }
-
-            for (int i = 0; i < user.Roles.Count; i++)
-            {
-                if (roleManager.RoleExists(roleManager.FindById(userRoles[i].RoleId).Name))
-                {
-                    rolesChecked[roleManager.FindById(userRoles[i].RoleId).Name] = true;
-
-                }
-                else
-                {
-                    rolesChecked[roleManager.FindById(userRoles[i].RoleId).Name] = false;
-                }
-            }
-
-            ViewBag.RolesDictionary = rolesChecked;
-
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             ApplicationUser applicationUser = manager.FindByName(id);
+            EditUserViewModel apUsr =new EditUserViewModel()
+            {
+                Id = applicationUser.Id,
+                PasswordHash = applicationUser.PasswordHash,
+                SallerLocation = applicationUser.SallerLocation,
+                UserName = applicationUser.UserName,
+                PhoneNumber = applicationUser.PhoneNumber
+            };
             if (applicationUser == null)
             {
                 return HttpNotFound();
             }
 
-            return View(applicationUser);
+            ViewBag.SalePoints = adrressList;
+            ViewBag.Roles = roleManager.Roles.ToList();
+
+            InitRoleValuesForCheckBoxes(id);
+
+
+            return View(apUsr);
         }
 
         // POST: Admin/Edit/5
@@ -188,29 +249,46 @@ namespace BoublikSystem.Controllers
             "Id,Email,EmailConfirmed,PasswordHash," +
             "SecurityStamp,PhoneNumber,PhoneNumberConfirmed," +
             "TwoFactorEnabled,LockoutEndDateUtc,LockoutEnabled," +
-            "AccessFailedCount,UserName,SelectedRole,SallerLocation")] ApplicationUser applicationUser)
+            "AccessFailedCount,UserName,SallerLocation")] EditUserViewModel appuserReg)
         {
+            //UserName = appuserReg.UserName,
+            //    PasswordHash = appuserReg.PasswordHash,
+            //    PhoneNumber = appuserReg.PhoneNumber,
+            //    SallerLocation = appuserReg.SallerLocation,
+            //    Id = appuserReg.Id
+
+            ViewBag.SalePoints = adrressList;
+            ViewBag.Roles = roleManager.Roles.ToList();
             if (ModelState.IsValid)
             {
-                ApplicationUser user = manager.FindByName(applicationUser.Id);
+                ApplicationUser user = manager.FindByName(appuserReg.Id);
 
                 var hasher = new PasswordHasher();
 
 
 
-                if ((applicationUser.PasswordHash != null) && (applicationUser.PasswordHash.IndexOf(' ') == -1))
+                if ((appuserReg.PasswordHash != null) && (appuserReg.PasswordHash.IndexOf(' ') == -1))
                 {
-                    user.PasswordHash = hasher.HashPassword(applicationUser.PasswordHash);
+                    user.PasswordHash = hasher.HashPassword(appuserReg.PasswordHash);
                 }
-
+                if (appuserReg.SallerLocation != 0)
+                {
+                    user.SallerLocation = appuserReg.SallerLocation;
+                }
+                user.UserName = appuserReg.UserName;
+                user.PhoneNumber = appuserReg.PhoneNumber;
+                
                 //формирование списка названий ролей по id для добавления ролей юзеру
                 List<string> r = new List<string>();
-                foreach (var roleId in Request["selectedRoles"].Split(','))
+                try
                 {
-                    r.Add(roleManager.FindByName(roleId).Name);
+                    foreach (var roleId in Request["selectedRoles"].Split(','))
+                    {
+                        r.Add(roleManager.FindByName(roleId).Name);
 
+                    }
                 }
-                string[] s = new string[r.Count];
+                catch { }
                 List<string> rolesName = new List<string>();
                 foreach (var role in roleManager.Roles)
                 {
@@ -220,7 +298,6 @@ namespace BoublikSystem.Controllers
                             rolesName.Add(role.Name);
 
                     }
-
 
                 }
                 manager.RemoveFromRoles(user.Id, rolesName.ToArray()); //delete user from all roles
@@ -232,7 +309,8 @@ namespace BoublikSystem.Controllers
                 //  manager.AddToRole(user.Id, dbContext.Roles.Find(applicationUser.SelectedRole).Name);
                 return RedirectToAction("CrudUser");
             }
-            return View(applicationUser);
+            InitRoleValuesForCheckBoxes(appuserReg.Id);
+            return View(appuserReg);
         }
 
         // GET: Admin/Delete/5
@@ -243,11 +321,21 @@ namespace BoublikSystem.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             ApplicationUser applicationUser = manager.FindByName(id);
+            DetailsUserViewModel apUsr =new DetailsUserViewModel()
+            {
+                Id = applicationUser.Id,
+                PhoneNumber = applicationUser.PhoneNumber,
+                SallerLocation = applicationUser.SallerLocation,
+                Roles = applicationUser.Roles,
+                PasswordHash = applicationUser.PasswordHash,
+                UserName = applicationUser.UserName
+
+            };
             if (applicationUser == null)
             {
                 return HttpNotFound();
             }
-            return View(applicationUser);
+            return View(apUsr);
         }
 
         // POST: Admin/Delete/5
