@@ -22,7 +22,7 @@ namespace BoublikSystem.Controllers
         private static ApplicationDbContext context = new ApplicationDbContext(); // БД
         private static List<Product> products; // список всей продукции
 
-        
+
         private static List<SelectListItem> adrressList;
 
         private static Dictionary<Product, double> _billsList_view = new Dictionary<Product, double>();
@@ -35,7 +35,7 @@ namespace BoublikSystem.Controllers
 
         }
 
-       
+
         // GET: Cook
         public ActionResult Index()
         {
@@ -67,8 +67,8 @@ namespace BoublikSystem.Controllers
 
                 // todo: add to bd and clean list
 
-                
-                
+
+
                 // Что бы получить id для WayBill нужно его добавить в ДБ, затем считать
                 int idSelectedAdress = Convert.ToInt32(wayBillModel.SelectedAdress);
                 int futureId = 0;
@@ -169,11 +169,15 @@ namespace BoublikSystem.Controllers
             {
                 for (int i = 0; i < salesList.Count; i++)
                 {
-                    answer.Add(new SelectListItem
+                    if (salesList[i].Adress != "Нет")   //Убираем адресс "Нет" из списка для накладных
                     {
-                        Text = salesList[i].Adress,
-                        Value = salesList[i].Id.ToString()
-                    });
+                        answer.Add(new SelectListItem
+                        {
+                            Text = salesList[i].Adress,
+                            Value = salesList[i].Id.ToString()
+                        });
+                    }
+
                 }
             }
 
