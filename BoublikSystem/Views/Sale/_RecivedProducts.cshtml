@@ -8,7 +8,7 @@
         <td>@Html.DisplayFor(modelItem => item.Key.Price)</td>
         <td id="@string.Format("{0}{1}","update",item.Key.Id)">@(string.Format("{0} {1}", item.Value, item.Key.MeasurePoint))</td>
         <td>
-            @Html.ActionLink("Добавить", "AskForCount", "Sale",
+            @Html.ActionLink("Добавить в чек", "AskForCount", "Sale",
                         new { productId = item.Key.Id },
                         new { @class = "compItem" })
         </td>
