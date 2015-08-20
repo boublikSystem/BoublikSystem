@@ -1,4 +1,5 @@
-﻿@model decimal
+﻿@using System.Web.Script
+@model decimal
 
 <div class="modal-content">
 
@@ -11,8 +12,12 @@
             Стача: <span id="amountToChange">0.00</span> грн.
         </p>
 
-        <input type="button" value="Оплаченно" disabled />
-        <input type="button" value="Отмена" />
+        @using (Ajax.BeginForm("CreateBill", "Sale", new AjaxOptions { UpdateTargetId = "selectedProducts" }))
+        {
+            <input type="submit" value="Оплаченно" id="payed" disabled />
+        }
+
+        <input type="button" value="Отмена" id="cancel" />
     </div>
 </div>
 
@@ -22,9 +27,23 @@
         var amoutToChange = document.getElementById("amoutToChange");
         var textId = document.getElementById("textId").value;
 
+        amountToPay = parseInt(amountToPay);
         textId = textId.replace(",", ".");
 
-        amountToChange.innerHTML = textId - amountToPay;
+        amountToChange.innerHTML = Math.round((textId - amountToPay) * 100) / 100;
+
+        if (amountToChange.innerHTML >= 0) {
+            var payed = document.getElementById("payed");
+
+            payed.removeAttribute("disabled");
+        }
 
     }
+
+    $("#cancel").click(function () {
+        $("#modDialog").modal("hide");
+    });
+    $("#payed").click(function () {
+        $("#modDialog").modal("hide");
+    });
 </script>

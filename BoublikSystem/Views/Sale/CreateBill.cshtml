@@ -1,4 +1,5 @@
-﻿@model IDictionary<BoublikSystem.Entities.Product, double>
+﻿@using BoublikSystem.Entities
+@model IDictionary<BoublikSystem.Entities.Product, double>
 
 @{
     ViewBag.Title = "CreateBill";
@@ -49,19 +50,18 @@
                     </th>
 
                 </tr>
-                <tbody id="selectedProducts"></tbody>
+                <tbody id="selectedProducts">
+                    @*@{
+                        Html.RenderAction("AddProductToBill", new { productId = 0 });
+                    }*@
+                </tbody>
             </table>
         </div>
     </div>
 
-    @Html.BeginForm("Calculate","Sale")
-    {
-        <input type="submit" id="calculateId" value="Рассчитать" />
-    }
-
-    <div id="calculateDialog" class="modal fade">
-        <div id="calculateContent" class="modal-dialog"></div>
-    </div>
+    @Html.ActionLink("Рассчитать", "Calculate", "Sale",
+                        new { },
+                        new { @class = "compItem" })
 
     <div id="modDialog" class="modal fade">
         <div id="dialogContent" class="modal-dialog"></div>
@@ -85,6 +85,7 @@
                 $('#modDialog').modal('show');
             });
         });
+
 
     });
 

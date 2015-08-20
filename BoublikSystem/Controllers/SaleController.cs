@@ -24,6 +24,56 @@ namespace BoublikSystem.Controllers
 
         public ActionResult CreateBill()
         {
+            if (Request.IsAjaxRequest())
+            {
+                Bill bill = new Bill
+                {
+                    Amount = CalculateAmount(),
+                    DataTime = DateTime.Now,
+                    SalePointId = _context.Users.First(u => u.UserName == User.Identity.Name).SallerLocation
+                };
+
+                _context.Bills.Add(bill);
+
+                ProductToBill productToBill = new ProductToBill();
+
+                foreach (var item in _currentBill)
+                {
+                    productToBill.BillId = bill.Id;
+                    productToBill.ProductId = item.Key.Id;
+                    productToBill.Count = item.Value;
+
+                    _context.ProductToBills.Add(productToBill);
+
+
+                    #region Delete product count from waybill
+
+                    double rest = item.Value;
+                    foreach (var variable in _context.ProductToWayBills.Where(w => w.ProductId == item.Key.Id))
+                    {
+                        if (variable.Count >= rest)
+                        {
+                            variable.Count -= rest;
+                            break;
+                        }
+                        else
+                        {
+                            rest -= variable.Count;
+                            variable.Count -= variable.Count;
+                        }
+                    }
+
+                    #endregion
+                }
+
+                _context.SaveChanges();
+
+                
+                _currentBill.Clear();
+
+                return PartialView("AddProductToBill", _currentBill);
+            }
+
             _recivedProducts = GetProduct();
 
             return View(_recivedProducts);
@@ -47,20 +97,24 @@ namespace BoublikSystem.Controllers
         /// <returns></returns>
         public PartialViewResult AddProductToBill(int productId)
         {
-            Product recivedProduct = _recivedProducts.First(p => p.Key.Id == productId).Key;
-            string checkForPoint = null;
-            double count = 0;
-
-            checkForPoint = Request["countField"].Replace(".", ",");
-            count = Convert.ToDouble(checkForPoint);
-
-            if (_currentBill.ContainsKey(recivedProduct))
+            // при инициализации поссылаю 0
+            if (productId != 0)
             {
-                _currentBill[recivedProduct] += count;
-            }
-            else
-            {
-                _currentBill.Add(recivedProduct, count);
+                Product recivedProduct = _recivedProducts.First(p => p.Key.Id == productId).Key;
+                string checkForPoint = null;
+                double count = 0;
+
+                checkForPoint = Request["countField"].Replace(".", ",");
+                count = Convert.ToDouble(checkForPoint);
+
+                if (_currentBill.ContainsKey(recivedProduct))
+                {
+                    _currentBill[recivedProduct] += count;
+                }
+                else
+                {
+                    _currentBill.Add(recivedProduct, count);
+                }
             }
 
             return PartialView(_currentBill);
@@ -116,7 +170,7 @@ namespace BoublikSystem.Controllers
         public ActionResult ChangeCount(int? productId, double? productCount)
         {
             Product product = _recivedProducts.Keys.First(p => p.Id == productId);
-            
+
             _recivedProducts[product] -= Convert.ToDouble(productCount);
 
             string strToChange = string.Format("{0} {1}", _recivedProducts[product], product.MeasurePoint);
@@ -147,12 +201,12 @@ namespace BoublikSystem.Controllers
         {
             decimal amount = CalculateAmount();
 
-            return PartialView("_Calculate",amount);
+            return PartialView("_Calculate", amount);
         }
 
         private decimal CalculateAmount()
         {
-            return _currentBill.Sum(item => item.Key.Price*(decimal) item.Value);
+            return _currentBill.Sum(item => item.Key.Price * (decimal)item.Value);
         }
     }
 }
