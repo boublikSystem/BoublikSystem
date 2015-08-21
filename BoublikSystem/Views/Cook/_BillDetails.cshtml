@@ -1,0 +1,79 @@
+﻿@model BoublikSystem.Models.Statistic
+@{ ViewBag.Counter = 0;
+}
+<h2>Сведения</h2>
+<div class="container">
+    @foreach (var bill in Model.CookBills.ToList())
+    {
+        if (bill.Id.ToString() == ViewBag.Id)
+        {
+
+            foreach (var adress in (IEnumerable<SelectListItem>)ViewBag.AdressList)
+            {
+                if (adress.Value == bill.SalesPointId.ToString())
+                {
+                    <h3>Накладная: ID: @bill.Id | Дата: @bill.Date | Назначение: @adress.Text </h3>
+                    
+                }
+            }
+
+        }
+    }
+    <hr/>
+    <h4>Список продуктов</h4>
+    <table class="table">
+        <tr>
+            <th>
+                #
+            </th>
+            <th>
+                ID
+            </th>
+            <th>
+                Имя
+            </th>
+            <th>
+                Цена
+            </th>
+            <th>
+                Количество
+            </th>
+            <th>
+                Стоимость
+            </th>
+        </tr>
+        @foreach (var bill in Model.CookBills.ToList())
+        {
+            if (bill.Id.ToString() == ViewBag.Id)
+            {
+                foreach (var product in bill.ProductToWayBills.ToList())
+                {
+                    <tr>
+                        <td><strong>@(ViewBag.Counter += 1)</strong> </td>
+                        <td>
+                            @Html.DisplayFor(m => product.Product.Id)
+
+                        </td>
+                        <td>
+                            @Html.DisplayFor(m => product.Product.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(m => product.Product.Price)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(m => product.Count)
+                            @Html.DisplayFor(m => product.Product.MeasurePoint)
+                        </td>
+                        <td>
+                            @(product.Count * (double)product.Product.Price)
+                        </td>
+
+                    </tr>
+                }
+            }
+        }
+
+    </table>
+
+
+</div>

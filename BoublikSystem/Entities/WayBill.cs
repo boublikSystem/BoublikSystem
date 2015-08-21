@@ -12,6 +12,8 @@ namespace BoublikSystem.Entities
         [Display(Name = "Адрес для отправки накладной")]
         public int SalesPointId { get; set; }
 
+        public DateTime Date { get; set; }
         public virtual ICollection<ProductToWayBill> ProductToWayBills { get; set; }
+       
     }
 }

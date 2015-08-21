@@ -1,0 +1,62 @@
+﻿@model BoublikSystem.Models.Statistic
+@{
+    ViewBag.Counter = 0;
+
+}
+@*TODO: Настроить отображение таблицы*@
+<h4>Список Отправленных накладных</h4>
+<div class="container">
+    <table class="tableSection" >
+        <thead>
+            <tr>
+                <th>
+                    <strong>#</strong>
+                </th>
+                <th>
+                    ID накладной
+                </th>
+                <th>
+                    Кол-во позиций
+                </th>
+                <th>
+                    Точка назначения
+                </th>
+                <th>
+                    Дата
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody >
+            @foreach (var bill in Model.CookBills.ToList())
+            {
+                <tr>
+                    <td><strong>@(ViewBag.Counter += 1)</strong> </td>
+                    <td> @bill.Id</td>
+                    <td>@bill.ProductToWayBills.Count</td>
+
+                    @foreach (var adress in (List<SelectListItem>)ViewBag.AdressList)
+                    {
+                        if (adress.Value == bill.SalesPointId.ToString())
+                        {
+                            <td>
+                                @adress.Text
+                            </td>
+                            break;
+                        }
+                    }
+
+                    <td>@bill.Date</td>
+                    @*<td><input type="button" value="Details"/></td>*@
+                    <td>
+                        @using (Html.BeginForm("_BillDetails", "Cook", new { id = bill.Id }))
+                    {
+                        <input type="submit" value="Просмотр" />
+                    }
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+
+</div>

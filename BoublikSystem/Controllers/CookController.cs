@@ -24,7 +24,7 @@ namespace BoublikSystem.Controllers
 
 
         private static List<SelectListItem> adrressList;
-
+        private static Statistic userStatistic = new Statistic();
         private static Dictionary<Product, double> _billsList_view = new Dictionary<Product, double>();
         // дабавлены продукты в накладную
 
@@ -51,6 +51,7 @@ namespace BoublikSystem.Controllers
             ViewBag.IsError = false;
             ViewBag.Success = false;
 
+
             return View(GetWayBillModel());
         }
 
@@ -72,7 +73,12 @@ namespace BoublikSystem.Controllers
                 // Что бы получить id для WayBill нужно его добавить в ДБ, затем считать
                 int idSelectedAdress = Convert.ToInt32(wayBillModel.SelectedAdress);
                 int futureId = 0;
-                WayBill wayBill = new WayBill { SalesPointId = idSelectedAdress };
+                WayBill wayBill = new WayBill
+                {
+                    SalesPointId = idSelectedAdress,
+                    Date = DateTime.Now
+                    //TODO: должно быть UserId, так как важно знать не от какой точки была накладная, а кто создал накладную
+                };
                 context.WayBills.Add(wayBill);
                 context.SaveChanges();
 
@@ -83,7 +89,9 @@ namespace BoublikSystem.Controllers
                         Count = item.Value,
                         ProductId = item.Key.Id,
                         WayBillId = wayBill.Id
+
                     };
+
 
                     context.ProductToWayBills.Add(productToWayBill);
                 }
@@ -322,6 +330,60 @@ namespace BoublikSystem.Controllers
         //    base.Dispose(disposing);
         //}
         //TODO: РАЗОБРАТЬСЯ С БД
+
+        #endregion
+        #region User Statistic
+        public ActionResult UserStatistic()
+        {
+            List<SelectListItem> StatFilters = new List<SelectListItem>();
+            StatFilters.Add(new SelectListItem() { Value = "1", Text = "Накладные" });
+            StatFilters.Add(new SelectListItem() { Value = "2", Text = "График" });
+            
+            return View(StatFilters);
+        }
+
+        public ActionResult _BillsStatistic(string item)
+        {
+
+
+
+            if (item == "1")
+            {
+
+                // return PartialView("_AllBills", userStatistic);
+                return RedirectToAction("_AllBills", new { item = item });
+            }
+            if (item == "2")
+            {
+                return RedirectToAction("_Chart", new { item = item });
+            }
+
+            return RedirectToAction("_AllBills", new { item = "1" });
+
+        }
+
+        public ActionResult _AllBills(string item="1")
+        {
+            ViewBag.AdressList = adrressList;
+            userStatistic.CookBills = userStatistic.GetCookBills(User.Identity.Name, item);
+            return PartialView(userStatistic);
+        }
+#region BillControl
+        public ActionResult _BillDetails(string id)
+        {
+            ViewBag.AdressList = adrressList;
+            ViewBag.Id = id;
+           
+            return View(userStatistic);
+        }
+        #endregion
+        #region AdditionalFunctions
+        public ActionResult _Chart(string item)
+        {
+            return PartialView();
+        }
+
+        #endregion 
 
         #endregion
     }

@@ -22,3 +22,27 @@ select,
 textarea {
     max-width: 280px;
 }
+table.tableSection {
+        display: table;
+        width: 100%;
+    }
+    table.tableSection thead, table.tableSection tbody {
+        float: left;
+        width: 100%;
+    }
+    table.tableSection tbody {
+        overflow: auto;
+        height: 90%;
+    }
+    table.tableSection tr {
+        width: 100%;
+        display: table;
+        text-align: left;
+    }
+    table.tableSection th {
+        width: 1%;
+    }
+    table.tableSection td {
+        width: 18%;
+    }
+    

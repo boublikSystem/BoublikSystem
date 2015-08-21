@@ -235,7 +235,7 @@ namespace BoublikSystem.Controllers
             ViewBag.Roles = roleManager.Roles.ToList();
 
             InitRoleValuesForCheckBoxes(id);
-
+            var b = dbContext.WayBills.ToList();
 
             return View(apUsr);
         }

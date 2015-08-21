@@ -1,0 +1,36 @@
+﻿@model IEnumerable<SelectListItem>
+@{
+    ViewBag.Title = "UserStatistic";
+    ViewBag.Counter = 0;
+
+}
+
+<h2>UserStatistic</h2>
+<hr />
+<div class="form-group" style="float: left;">
+    <div class="container">
+        @*<h2>List</h2>*@
+
+        @foreach (var item in (IEnumerable<SelectListItem>)Model.ToList())
+            {<div class="btn-group">
+
+            @using (Ajax.BeginForm("_BillsStatistic", "Cook", new { item = item.Value }, new AjaxOptions() { UpdateTargetId = "componentBody", OnSuccess = "onSuccess" }))
+            {
+
+            <input type="submit" id="applyId" value="@item.Text" class="btn btn-primary" />
+            }
+            @*<a href="#" class="list-group-item">@item.Text</a>*@
+        </div>
+        }
+
+
+    </div>
+    <div class="container">
+        <p id="componentBody">
+
+        </p>
+
+    </div>
+</div>
+
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
