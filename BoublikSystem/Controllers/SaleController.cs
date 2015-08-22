@@ -4,6 +4,7 @@ using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Script;
 using BoublikSystem.Entities;
 using BoublikSystem.Models;
 
@@ -26,11 +27,13 @@ namespace BoublikSystem.Controllers
         {
             if (Request.IsAjaxRequest())
             {
+                int salePoint = _context.Users.First(u => u.UserName == User.Identity.Name).SallerLocation;
+
                 Bill bill = new Bill
                 {
                     Amount = CalculateAmount(),
                     DataTime = DateTime.Now,
-                    SalePointId = _context.Users.First(u => u.UserName == User.Identity.Name).SallerLocation
+                    SalePointId = salePoint
                 };
 
                 _context.Bills.Add(bill);
@@ -46,29 +49,35 @@ namespace BoublikSystem.Controllers
                     _context.ProductToBills.Add(productToBill);
 
 
-                    #region Delete product count from waybill
+                    #region Delete product count from storage
 
-                    double rest = item.Value;
-                    foreach (var variable in _context.ProductToWayBills.Where(w => w.ProductId == item.Key.Id))
-                    {
-                        if (variable.Count >= rest)
-                        {
-                            variable.Count -= rest;
-                            break;
-                        }
-                        else
-                        {
-                            rest -= variable.Count;
-                            variable.Count -= variable.Count;
-                        }
-                    }
+                    _recivedProducts[item.Key] -= item.Value;
+                    _context.SalePoints
+                        .Find(salePoint).Storage
+                        .ToList()
+                        .Find(p => p.ProductId == item.Key.Id)
+                        .Count -= item.Value;
+                    //double rest = item.Value;
+                    //foreach (var variable in _context.ProductToWayBills.Where(w => w.ProductId == item.Key.Id))
+                    //{
+                    //    if (variable.Count >= rest)
+                    //    {
+                    //        variable.Count -= rest;
+                    //        break;
+                    //    }
+                    //    else
+                    //    {
+                    //        rest -= variable.Count;
+                    //        variable.Count -= variable.Count;
+                    //    }
+                    //}
 
                     #endregion
                 }
 
                 _context.SaveChanges();
 
-                
+
                 _currentBill.Clear();
 
                 return PartialView("AddProductToBill", _currentBill);
@@ -138,24 +147,36 @@ namespace BoublikSystem.Controllers
 
             int sellerLocation = _context.Users.First(u => u.UserName == userName).SallerLocation;
 
-            IEnumerable<WayBill> wayBills = _context.WayBills.Where(w => w.SalesPointId == sellerLocation).ToList();
-            Dictionary<Product, double> allProductsWithCount = new Dictionary<Product, double>();
+            IEnumerable<SaleStorage> saleStorage = _context.SalePoints.Find(sellerLocation).Storage;
+            Dictionary<Product,double> allProductsWithCount = new Dictionary<Product, double>();
 
-            foreach (var wayBill in wayBills)
+            foreach (var item in saleStorage)
             {
-                foreach (var item in wayBill.ProductToWayBills.ToList())
+                if (allProductsWithCount.ContainsKey(item.Product))
                 {
-                    if (allProductsWithCount.ContainsKey(item.Product))
-                    {
-                        allProductsWithCount[item.Product] += item.Count;
-                    }
-                    else
-                    {
-                        allProductsWithCount.Add(item.Product, item.Count);
-                    }
-
+                    allProductsWithCount[item.Product] += item.Count;
+                }
+                else
+                {
+                    allProductsWithCount.Add(item.Product, item.Count);
                 }
             }
+
+            //foreach (var wayBill in wayBills)
+            //{
+            //    foreach (var item in wayBill.ProductToWayBills.ToList())
+            //    {
+            //        if (allProductsWithCount.ContainsKey(item.Product))
+            //        {
+            //            allProductsWithCount[item.Product] += item.Count;
+            //        }
+            //        else
+            //        {
+            //            allProductsWithCount.Add(item.Product, item.Count);
+            //        }
+
+            //    }
+            //}
 
             return allProductsWithCount;
         }
@@ -192,7 +213,8 @@ namespace BoublikSystem.Controllers
 
             _recivedProducts[product] += Convert.ToDouble(productCount);
 
-            string strToChange = string.Format("{0} {1}", _recivedProducts[product], product.MeasurePoint);
+            //string strToChange = string.Format("{0} {1}", _recivedProducts[product], product.MeasurePoint);
+            string strToChange = _recivedProducts[product].ToString();
 
             return PartialView("_ChangeCountProduct", strToChange);
         }

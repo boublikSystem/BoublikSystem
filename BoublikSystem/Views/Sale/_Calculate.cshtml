@@ -7,7 +7,7 @@
         <p>
             Итого: <span id="amountToPay">@Model</span> грн.
         </p>
-        <input type="number" id="textId" placeholder="Введите полученную сумму" onchange="" onkeyup=" textChanged() " />
+        <input type="number" id="textId" placeholder="Введите полученную сумму" onchange="" onkeyup=" textChanged() " autofocus="" />
         <p>
             Стача: <span id="amountToChange">0.00</span> грн.
         </p>
@@ -46,4 +46,5 @@
     $("#payed").click(function () {
         $("#modDialog").modal("hide");
     });
+
 </script>

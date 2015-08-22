@@ -47,7 +47,7 @@ namespace BoublikSystem.Models
         public DbSet<WayBill> WayBills { get; set; }
         public DbSet<ProductToBill> ProductToBills { get; set; }
         public DbSet<Bill> Bills { get; set; }
-
+        
         
         //public System.Data.Entity.DbSet<BoublikSystem.Models.ApplicationUser> ApplicationUsers { get; set; }
     }

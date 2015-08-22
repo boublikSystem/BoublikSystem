@@ -7,30 +7,35 @@
 
 
 <div class="container">
-    <div class="row">
-        <div class="col-md-6">
-            <h2>Список полученных товаров</h2>
+    <h2>Список полученных товаров</h2>
+    <div class="row" id="selectedProducts2">
+        @{ Html.RenderPartial("_RecivedProducts", Model);}
 
-            <table class="table">
-                <tr>
-                    <th>
-                        Название продукта
-                    </th>
-                    <th>
-                        Цена (грн.)
-                    </th>
-                    <th>
-                        Количество
-                    </th>
-                    <th>
-                    </th>
-                </tr>
+        @*<div class="col-md-6">
 
-                <tbody id="selectedProducts2">
-                    @{ Html.RenderPartial("_RecivedProducts", Model); }
-                </tbody>
-            </table>
-        </div>
+
+                    <table class="table">
+                        <tr>
+                            <th>
+                                Название продукта
+                            </th>
+                            <th>
+                                Цена (грн.)
+                            </th>
+                            <th>
+                                Количество
+                            </th>
+                            <th>
+                            </th>
+                        </tr>
+
+                        <tbody id="selectedProducts2">
+                            @{ Html.RenderPartial("_RecivedProducts", Model); }
+                        </tbody>
+                    </table>
+
+            </div>*@
+
     </div>
     <div class="row">
         <div class="col-md-6">
@@ -51,15 +56,15 @@
 
                 </tr>
                 <tbody id="selectedProducts">
-                    
+
                 </tbody>
             </table>
         </div>
     </div>
 
     @Html.ActionLink("Рассчитать", "Calculate", "Sale",
-                        new { },
-                        new { @class = "compItem" })
+        new {},
+        new {@class = "compItem"})
 
     <div id="modDialog" class="modal fade">
         <div id="dialogContent" class="modal-dialog"></div>

@@ -39,4 +39,3 @@ function checkCount() {
         alerMsg.innerHTML = "";
     }
 }
-
