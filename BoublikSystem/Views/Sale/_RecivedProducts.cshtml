@@ -17,20 +17,22 @@
     <div class="col-md-2 col-sm-3 col-xs-4">
         <div class="panel panel-primary">
             <div class="panel-body">
-                <small class="small">
+                <small class="">
                     <b>
-                        @*@Html.ActionLink(item.Key.Name, "AskForCount", "Sale",
+                        @Html.ActionLink(item.Key.Name, "AskForCount", "Sale",
                         new { productId = item.Key.Id },
-                        new { @class = "compItem" })*@
-                        @item.Key.Name
+                        new { @class = "compItem" })
                     </b>
                 </small>
             </div>
             <div class="panel-footer">
-                <small class="">Кол: @item.Value</small>
+                <small class="">Кол: <spane id="@string.Format("{0}{1}", "update", item.Key.Id)">@item.Value</spane></small>
                 <small class="">Цена: @item.Key.Price</small>
             </div>
         </div>
     </div>
 
 }
+
+<!-- Latest compiled and minified CSS -->
+@*<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">*@

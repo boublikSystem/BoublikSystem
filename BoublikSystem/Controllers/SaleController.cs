@@ -194,7 +194,7 @@ namespace BoublikSystem.Controllers
 
             _recivedProducts[product] -= Convert.ToDouble(productCount);
 
-            string strToChange = string.Format("{0} {1}", _recivedProducts[product], product.MeasurePoint);
+            string strToChange = _recivedProducts[product].ToString();
 
             return PartialView("_ChangeCountProduct", strToChange);
         }
