@@ -92,6 +92,26 @@ namespace BoublikSystem.Controllers
 
                     };
 
+                    // добавляем продукт в хранилище точки
+
+                    var hasProduct = context.SalePoints.Find(idSelectedAdress).Storage.First(u => u.ProductId == item.Key.Id);
+
+                    if (hasProduct == null)
+                    {
+                        context.SalePoints.Find(idSelectedAdress).Storage.Add(
+                            new SaleStorage
+                            {
+                                Count = item.Value,
+                                SalePointId = idSelectedAdress,
+                                ProductId = item.Key.Id
+                            });
+                    }
+                    else
+                    {
+                        context.SalePoints.Find(idSelectedAdress).Storage.First(s => s.ProductId == hasProduct.ProductId).Count +=
+                            item.Value;
+
+                    }
 
                     context.ProductToWayBills.Add(productToWayBill);
                 }

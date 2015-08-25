@@ -1,38 +1,20 @@
 ﻿    @model IDictionary<BoublikSystem.Entities.Product, double>
 
-@foreach (var item in Model)
+@if (Model != null)
 {
-    <tr>
-        
-        <td>@item.Key.Name <input type="hidden" value="@item.Key.Id" id="deleteIdProduct" /></td>
-        <td>@(Math.Round((item.Key.Price*(decimal) item.Value), 2))</td>
-        <td><span id="countAdded">@item.Value</span> @item.Key.MeasurePoint</td>
-        <td>
-            @using (Ajax.BeginForm("DeleteProductFromBill", "Sale", new {productId = item.Key.Id}, new AjaxOptions() {UpdateTargetId = "selectedProducts"}))
-            {
-                <input type="submit" value="Удалить" id="deleteId"/>
-            }
-        </td>
-    </tr>
+    foreach (var item in Model)
+    {
+        <tr>
+
+            <td>@item.Key.Name <input type="hidden" value="@item.Key.Id" id="deleteIdProduct" /></td>
+            <td>@(Math.Round((item.Key.Price * (decimal)item.Value), 2))</td>
+            <td><span id="countAdded">@item.Value</span> @item.Key.MeasurePoint</td>
+            <td>
+                @using (Ajax.BeginForm("DeleteProductFromBill", "Sale", new { productId = item.Key.Id }, new AjaxOptions() { UpdateTargetId = "selectedProducts" }))
+                {
+                    <input type="submit" value="Удалить" id="deleteId" onclick="deleteFromBill()" />
+                }
+            </td>
+        </tr>
+    }
 }
-
-<script>
-    $("#deleteId").click(function () {
-        var countId = document.getElementById("countAdded").innerHTML;
-        var productId = document.getElementById("hiddenId").value;
-        var elementToUpDate = "#update" + productId;
-
-        $.ajax({
-            type: "POST",
-            url: "/sale/ChangeCount",
-            success: function (result) {
-                $(elementToUpDate).html(result);
-            },
-            error: function (xhr, status, error) {
-                alert(xhr.responseText);
-            },
-            data: { productId: productId, productCount: countId, notNeeded: null }
-        });
-
-    });
-</script>

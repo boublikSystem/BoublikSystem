@@ -6,12 +6,10 @@
         <span id="alerMsg"></span>
         @using (Ajax.BeginForm("AddProductToBill", "Sale", new { productId = Model }, new AjaxOptions() { UpdateTargetId = "selectedProducts" }))
         {
-            <input type="hidden" value="@Model" id="hiddenId"/>
-            <input type="number" class="form-control" id="countId" name="countField" value="" onkeyup="checkCount()">
-            <input type="submit" id="applyId" value="Отправить" disabled="" />
+            <input type="hidden" value="@Model" id="hiddenId" />
+            <input type="number" class="form-control" id="countId" name="countField" value="" onkeyup=" checkCount() " autofocus="" />
+            <input type="submit" id="applyId" value="Отправить" disabled="" onclick="applyFunc()" />
         }
 
     </div>
 </div>
-
-<script src="~/Scripts/jsForDialog.js"></script>

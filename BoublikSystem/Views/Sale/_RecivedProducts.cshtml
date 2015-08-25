@@ -1,16 +1,47 @@
-﻿
-@model IDictionary<BoublikSystem.Entities.Product, double>
+﻿@model IDictionary<BoublikSystem.Entities.Product, double>
 
 @foreach (var item in Model)
 {
-    <tr>
-        <td>@Html.DisplayFor(modelItem => item.Key.Name)</td>
-        <td>@Html.DisplayFor(modelItem => item.Key.Price)</td>
-        <td id="@string.Format("{0}{1}","update",item.Key.Id)">@(string.Format("{0} {1}", item.Value, item.Key.MeasurePoint))</td>
-        <td>
-            @Html.ActionLink("Добавить", "AskForCount", "Sale",
-                        new { productId = item.Key.Id },
-                        new { @class = "compItem" })
-        </td>
-    </tr>
+    @*<tr>
+            <td>@Html.DisplayFor(modelItem => item.Key.Name)</td>
+            <td>@Html.DisplayFor(modelItem => item.Key.Price)</td>
+            <td id="@string.Format("{0}{1}", "update", item.Key.Id)">@(string.Format("{0} {1}", item.Value, item.Key.MeasurePoint))</td>
+            <td>
+                @Html.ActionLink("Добавить в чек", "AskForCount", "Sale",
+                    new {productId = item.Key.Id},
+                    new {@class = "compItem"})
+            </td>
+        </tr>*@
+
+
+    <div class="col-md-2 col-sm-3 col-xs-4" id="@string.Format("{0}{1}", "update", item.Key.Id)">
+        <div class="panel panel-primary">
+            <div class="panel-body">
+                <p>
+                    <small class="">
+                        @{
+    if (item.Value > 0)
+    {
+        <b>
+            @Html.ActionLink(item.Key.Name, "AskForCount", "Sale",
+                                    new { productId = item.Key.Id },
+                                    new { @class = "compItem", onclick = "displayDialog()" })
+        </b>
+    }
+    else
+    {
+        <del>
+            @item.Key.Name
+        </del>
+    }
+                        }
+                    </small>
+                </p>
+
+                <small class="">Кол: <span id="@string.Format("{0}{1}", "productCountId", item.Key.Id)">@item.Value</span></small>
+                <small class="">Цена: @item.Key.Price</small>
+            </div>
+        </div>
+    </div>
+
 }

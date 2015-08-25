@@ -1,4 +1,5 @@
-﻿@model decimal
+﻿@using System.Web.Script
+@model decimal
 
 <div class="modal-content">
 
@@ -6,25 +7,16 @@
         <p>
             Итого: <span id="amountToPay">@Model</span> грн.
         </p>
-        <input type="number" id="textId" placeholder="Введите полученную сумму" onchange="" onkeyup=" textChanged() " />
+        <input type="number" id="textId" placeholder="Введите полученную сумму" onchange="" onkeyup=" textChanged() " autofocus="" />
         <p>
             Стача: <span id="amountToChange">0.00</span> грн.
         </p>
 
-        <input type="button" value="Оплаченно" disabled />
-        <input type="button" value="Отмена" />
+        @using (Ajax.BeginForm("CreateBill", "Sale", new AjaxOptions { UpdateTargetId = "selectedProducts" }))
+        {
+            <input type="submit" value="Чек оплачен" id="payed" onclick="payedFunc()" disabled />
+        }
+
+        <input type="button" value="Отмена" id="cancel" onclick="cancelFunc()"/>
     </div>
 </div>
-
-<script>
-    function textChanged() {
-        var amountToPay = document.getElementById("amountToPay").innerHTML;
-        var amoutToChange = document.getElementById("amoutToChange");
-        var textId = document.getElementById("textId").value;
-
-        textId = textId.replace(",", ".");
-
-        amountToChange.innerHTML = textId - amountToPay;
-
-    }
-</script>

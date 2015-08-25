@@ -14,7 +14,7 @@
         @using (Ajax.BeginForm("_AddProductToWayBill", "Cook", new { id = Model }, new AjaxOptions() { UpdateTargetId = "selectedProducts", OnSuccess = "onSuccess" }))
         {
 
-            <input type="text" class="form-control" id="countfld" name="countField" value="" required pattern="[0-9/,/.]+">
+            <input type="text" class="form-control" id="countfld" name="countField" value="" required pattern="[0-9/,/.]+" autofocus=""/>
 
             <label for="countfld"></label>
             <input type="submit" id="applyId" value="Принять" />
