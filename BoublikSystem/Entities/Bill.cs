@@ -9,7 +9,7 @@ namespace BoublikSystem.Entities
     {
         public int Id { get; set; }
         public decimal Amount { get; set; }
-        public DateTime Date { get; set; }
+        public DateTime DataTime { get; set; }
         public int SalePointId { get; set; }
         
 

@@ -94,7 +94,7 @@ namespace BoublikSystem.Controllers
 
                     // добавляем продукт в хранилище точки
 
-                    var hasProduct = context.SalePoints.Find(idSelectedAdress).Storage.First(u => u.ProductId == item.Key.Id);
+                    var hasProduct = context.SalePoints.Find(idSelectedAdress).Storage.FirstOrDefault(u => u.ProductId == item.Key.Id);
 
                     if (hasProduct == null)
                     {
