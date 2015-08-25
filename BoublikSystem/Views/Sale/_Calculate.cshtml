@@ -14,37 +14,9 @@
 
         @using (Ajax.BeginForm("CreateBill", "Sale", new AjaxOptions { UpdateTargetId = "selectedProducts" }))
         {
-            <input type="submit" value="Чек оплачен" id="payed" disabled />
+            <input type="submit" value="Чек оплачен" id="payed" onclick="payedFunc()" disabled />
         }
 
-        <input type="button" value="Отмена" id="cancel" />
+        <input type="button" value="Отмена" id="cancel" onclick="cancelFunc()"/>
     </div>
 </div>
-
-<script>
-    function textChanged() {
-        var amountToPay = document.getElementById("amountToPay").innerHTML;
-        var amoutToChange = document.getElementById("amoutToChange");
-        var textId = document.getElementById("textId").value;
-
-        amountToPay = parseInt(amountToPay);
-        textId = textId.replace(",", ".");
-
-        amountToChange.innerHTML = Math.round((textId - amountToPay) * 100) / 100;
-
-        if (amountToChange.innerHTML >= 0) {
-            var payed = document.getElementById("payed");
-
-            payed.removeAttribute("disabled");
-        }
-
-    }
-
-    $("#cancel").click(function () {
-        $("#modDialog").modal("hide");
-    });
-    $("#payed").click(function () {
-        $("#modDialog").modal("hide");
-    });
-
-</script>

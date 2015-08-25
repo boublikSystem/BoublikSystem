@@ -9,7 +9,7 @@
 <div class="container">
     <h2>Список полученных товаров</h2>
     <div class="row" id="selectedProducts2">
-        @{ Html.RenderPartial("_RecivedProducts", Model);}
+        @{Html.RenderPartial("_RecivedProducts", Model);}
 
         @*<div class="col-md-6">
 
@@ -75,22 +75,16 @@
 
 @*Ненавязивый JavaScript для выполнения запроса на сервер без полного обновления страницы*@
 <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+<script src="~/Scripts/jsForDialog.js"></script>
 
-<script type="text/javascript">
+<script>
+    $.ajaxSetup({ cache: false });
+    $(".compItem").click(function (e) {
 
-    $(function () {
-        $.ajaxSetup({ cache: false });
-        $(".compItem").click(function (e) {
-
-            e.preventDefault();
-            $.get(this.href, function (data) {
-                $('#dialogContent').html(data);
-                $('#modDialog').modal('show');
-            });
+        e.preventDefault();
+        $.get(this.href, function (data) {
+            $('#dialogContent').html(data);
+            $('#modDialog').modal('show');
         });
-
-
     });
-
-
 </script>

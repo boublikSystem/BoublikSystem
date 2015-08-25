@@ -14,25 +14,34 @@
         </tr>*@
 
 
-    <div class="col-md-2 col-sm-3 col-xs-4">
+    <div class="col-md-2 col-sm-3 col-xs-4" id="@string.Format("{0}{1}", "update", item.Key.Id)">
         <div class="panel panel-primary">
             <div class="panel-body">
-                <small class="">
-                    <b>
-                        @Html.ActionLink(item.Key.Name, "AskForCount", "Sale",
-                        new { productId = item.Key.Id },
-                        new { @class = "compItem" })
-                    </b>
-                </small>
-            </div>
-            <div class="panel-footer">
-                <small class="">Кол: <spane id="@string.Format("{0}{1}", "update", item.Key.Id)">@item.Value</spane></small>
+                <p>
+                    <small class="">
+                        @{
+    if (item.Value > 0)
+    {
+        <b>
+            @Html.ActionLink(item.Key.Name, "AskForCount", "Sale",
+                                    new { productId = item.Key.Id },
+                                    new { @class = "compItem", onclick = "displayDialog()" })
+        </b>
+    }
+    else
+    {
+        <del>
+            @item.Key.Name
+        </del>
+    }
+                        }
+                    </small>
+                </p>
+
+                <small class="">Кол: <span id="@string.Format("{0}{1}", "productCountId", item.Key.Id)">@item.Value</span></small>
                 <small class="">Цена: @item.Key.Price</small>
             </div>
         </div>
     </div>
 
 }
-
-<!-- Latest compiled and minified CSS -->
-@*<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">*@

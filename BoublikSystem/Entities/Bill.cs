@@ -12,5 +12,7 @@ namespace BoublikSystem.Entities
         public DateTime DataTime { get; set; }
         public int SalePointId { get; set; }
 
+        public virtual ICollection<ProductToBill> Products { get; set; }
+
     }
 }

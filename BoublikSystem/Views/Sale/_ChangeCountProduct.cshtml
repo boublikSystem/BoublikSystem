@@ -1,3 +1,41 @@
-﻿@model string
+﻿@model BoublikSystem.Controllers.ChangeSaleModel
 
-@Model
+<div class="panel panel-primary">
+    <div class="panel-body">
+        <p>
+            <small class="">
+                @{
+                    if (Model.Count > 0)
+                    {
+                        <b>
+                            @Html.ActionLink(Model.Product.Name, "AskForCount", "Sale",
+                            new { productId = Model.Product.Id },
+                            new { @class = "compItem" })
+                        </b>
+                    }
+                    else
+                    {
+                        <del>
+                            @Model.Product.Name
+                        </del>
+                    }
+                }
+
+            </small>
+        </p>
+        <small class="">Кол: <span id="@string.Format("{0}{1}", "productCountId", Model.Product.Id)">@Model.Count</span></small>
+        <small class="">Цена: @Model.Product.Price</small>
+    </div>
+</div>
+
+<script>
+    //$.ajaxSetup({ cache: false });
+    //$(".compItem").click(function (e) {
+
+    //    e.preventDefault();
+    //    $.get(this.href, function (data) {
+    //        $('#dialogContent').html(data);
+    //        $('#modDialog').modal('show');
+    //    });
+    //});
+</script>

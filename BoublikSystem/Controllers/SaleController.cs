@@ -10,6 +10,12 @@ using BoublikSystem.Models;
 
 namespace BoublikSystem.Controllers
 {
+    public class ChangeSaleModel
+    {
+        public Product Product { get; set; }
+        public double Count { get; set; }
+    }
+
     [Authorize(Roles = "seller, admin")]
     public class SaleController : Controller
     {
@@ -27,7 +33,7 @@ namespace BoublikSystem.Controllers
         {
             if (Request.IsAjaxRequest())
             {
-                int salePoint = _context.Users.First(u => u.UserName == User.Identity.Name).SallerLocation;
+                int salePoint = GetSellerLocation();
 
                 Bill bill = new Bill
                 {
@@ -38,10 +44,12 @@ namespace BoublikSystem.Controllers
 
                 _context.Bills.Add(bill);
 
-                ProductToBill productToBill = new ProductToBill();
+                
 
                 foreach (var item in _currentBill)
                 {
+                    ProductToBill productToBill = new ProductToBill();
+
                     productToBill.BillId = bill.Id;
                     productToBill.ProductId = item.Key.Id;
                     productToBill.Count = item.Value;
@@ -84,7 +92,7 @@ namespace BoublikSystem.Controllers
             }
 
             _recivedProducts = GetProduct();
-
+            _currentBill.Clear();
             return View(_recivedProducts);
         }
 
@@ -129,6 +137,11 @@ namespace BoublikSystem.Controllers
             return PartialView(_currentBill);
         }
 
+        /// <summary>
+        /// Обновляет список товаров добавленный в чек
+        /// </summary>
+        /// <param name="productId"></param>
+        /// <returns></returns>
         public PartialViewResult DeleteProductFromBill(int productId)
         {
             Product productToDelete = _recivedProducts.First(p => p.Key.Id == productId).Key;
@@ -145,10 +158,10 @@ namespace BoublikSystem.Controllers
         {
             string userName = User.Identity.Name;
 
-            int sellerLocation = _context.Users.First(u => u.UserName == userName).SallerLocation;
+            int sellerLocation = GetSellerLocation();
 
             IEnumerable<SaleStorage> saleStorage = _context.SalePoints.Find(sellerLocation).Storage;
-            Dictionary<Product,double> allProductsWithCount = new Dictionary<Product, double>();
+            Dictionary<Product, double> allProductsWithCount = new Dictionary<Product, double>();
 
             foreach (var item in saleStorage)
             {
@@ -182,7 +195,7 @@ namespace BoublikSystem.Controllers
         }
 
         /// <summary>
-        /// Метод изменяет количество (счетчик) полученных продуктов
+        /// Метод изменяет количество (отнимает) полученных продуктов
         /// Обрабатывает добавление
         /// </summary>
         /// <param name="productId">Ид продукта</param>
@@ -196,11 +209,18 @@ namespace BoublikSystem.Controllers
 
             string strToChange = _recivedProducts[product].ToString();
 
-            return PartialView("_ChangeCountProduct", strToChange);
+            ChangeSaleModel cahSaleModel = new ChangeSaleModel
+            {
+                Product = product,
+                Count = _recivedProducts[product]
+            };
+
+            return PartialView("_ChangeCountProduct", cahSaleModel);
         }
 
         /// <summary>
-        /// 
+        /// Метод изменения количеста (прибавляет) полученный продуктов
+        /// Обрабатывает удаление из чека
         /// </summary>
         /// <param name="productId"></param>
         /// <param name="productCount"></param>
@@ -216,7 +236,13 @@ namespace BoublikSystem.Controllers
             //string strToChange = string.Format("{0} {1}", _recivedProducts[product], product.MeasurePoint);
             string strToChange = _recivedProducts[product].ToString();
 
-            return PartialView("_ChangeCountProduct", strToChange);
+            ChangeSaleModel cahSaleModel = new ChangeSaleModel
+            {
+                Product = product,
+                Count = _recivedProducts[product]
+            };
+
+            return PartialView("_ChangeCountProduct", cahSaleModel);
         }
 
         public ActionResult Calculate()
@@ -230,5 +256,69 @@ namespace BoublikSystem.Controllers
         {
             return _currentBill.Sum(item => item.Key.Price * (decimal)item.Value);
         }
+
+        public ActionResult BillCancellation()
+        {
+            var searchBySum = Request["searchBySum"];
+            var searchByProduct = Request["searchByProduct"];
+            var searchByDay = Request["searchByDay"];
+
+
+            if (Request.IsAjaxRequest())
+            {
+                string str = Request["str"];
+
+                return PartialView("_SearchResult");
+            }
+
+            return View();
+        }
+
+        public ActionResult DefaultSearchResult()
+        {
+            int sellerLocation = GetSellerLocation();
+
+            var list = _context.Bills.OrderByDescending(u=>u.DataTime).Take(10).Where(b => b.SalePointId == sellerLocation).ToList();
+
+            return PartialView(list);
+        }
+
+        public ActionResult CancelBill(int billId)
+        {
+            var bill = _context.Bills.Find(billId);
+            int sellerLocation = GetSellerLocation();
+            
+            AddBillToStorage(bill,sellerLocation);
+            
+            _context.Bills.Remove(bill);
+            _context.SaveChanges();
+
+            var list = _context.Bills.OrderByDescending(u => u.DataTime).Take(10).Where(b => b.SalePointId == sellerLocation).ToList();
+
+            return PartialView("DefaultSearchResult",list);
+        }
+
+        private int GetSellerLocation()
+        {
+            return _context.Users.First(u => (u.UserName == User.Identity.Name)).SallerLocation;
+        }
+
+        private void AddBillToStorage(Bill bill, int sellerLocation)
+        {
+            var storage = _context.SalePoints.Find(sellerLocation).Storage;
+
+            foreach (var item in bill.Products)
+            {
+                SaleStorage saleStorage = new SaleStorage
+                {
+                    Count = item.Count,
+                    ProductId = item.Product.Id,
+                    SalePointId = sellerLocation
+                };
+
+                storage.Add(saleStorage);
+            }
+        }
     }
+
 }

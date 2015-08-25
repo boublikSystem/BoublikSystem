@@ -75,7 +75,7 @@ namespace BoublikSystem.Controllers
                 WayBill wayBill = new WayBill { SalesPointId = idSelectedAdress };
                 context.WayBills.Add(wayBill);
                 context.SaveChanges();
-                
+
                 foreach (var item in _billsList_view)
                 {
                     ProductToWayBill productToWayBill = new ProductToWayBill
@@ -86,13 +86,25 @@ namespace BoublikSystem.Controllers
                     };
 
                     // добавляем продукт в хранилище точки
-                    context.SalePoints.Find(idSelectedAdress).Storage.Add(
-                        new SaleStorage
-                        {
-                            Count = item.Value,
-                            SalePointId = idSelectedAdress,
-                            ProductId = item.Key.Id
-                        });
+
+                    var hasProduct = context.SalePoints.Find(idSelectedAdress).Storage.First(u => u.ProductId == item.Key.Id);
+
+                    if (hasProduct == null)
+                    {
+                        context.SalePoints.Find(idSelectedAdress).Storage.Add(
+                            new SaleStorage
+                            {
+                                Count = item.Value,
+                                SalePointId = idSelectedAdress,
+                                ProductId = item.Key.Id
+                            });
+                    }
+                    else
+                    {
+                        context.SalePoints.Find(idSelectedAdress).Storage.First(s => s.ProductId == hasProduct.ProductId).Count +=
+                            item.Value;
+
+                    }
 
                     context.ProductToWayBills.Add(productToWayBill);
                 }
