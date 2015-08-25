@@ -338,7 +338,7 @@ namespace BoublikSystem.Controllers
             List<SelectListItem> StatFilters = new List<SelectListItem>();
             StatFilters.Add(new SelectListItem() { Value = "1", Text = "Накладные" });
             StatFilters.Add(new SelectListItem() { Value = "2", Text = "График" });
-            
+
             return View(StatFilters);
         }
 
@@ -361,19 +361,37 @@ namespace BoublikSystem.Controllers
             return RedirectToAction("_AllBills", new { item = "1" });
 
         }
-
-        public ActionResult _AllBills(string item="1")
+        private  struct Period
         {
-            ViewBag.AdressList = adrressList;
-            userStatistic.CookBills = userStatistic.GetCookBills(User.Identity.Name, item);
-            return PartialView(userStatistic);
+            public DateTime Start { get; set; }
+            public DateTime End { get; set; }
         }
-#region BillControl
+        public ActionResult _AllBills( string item = "1")
+        {
+            Period period=new Period();
+            try
+            {
+                period.Start = Convert.ToDateTime(Request["startDate"]);
+                period.End = Convert.ToDateTime(Request["endDate"]);
+            }
+            catch
+            {
+                // ignored
+            }
+
+
+            //TODO:сравнивать даты/создать период/ сделать выборку
+            ViewBag.AdressList = adrressList;
+            userStatistic.CookBills = userStatistic.GetCookBills(User.Identity.Name, item,period.Start,period.End);
+            return PartialView(userStatistic);
+
+        }
+        #region BillControl
         public ActionResult _BillDetails(string id)
         {
             ViewBag.AdressList = adrressList;
             ViewBag.Id = id;
-           
+
             return View(userStatistic);
         }
         #endregion

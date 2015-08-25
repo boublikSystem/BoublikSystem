@@ -11,26 +11,51 @@
     <div class="container">
         @*<h2>List</h2>*@
 
-        @foreach (var item in (IEnumerable<SelectListItem>)Model.ToList())
-            {<div class="btn-group">
+        @*@foreach (var item in (IEnumerable<SelectListItem>)Model.ToList())
+            {
+            <div class="btn-group">
 
-            @using (Ajax.BeginForm("_BillsStatistic", "Cook", new { item = item.Value }, new AjaxOptions() { UpdateTargetId = "componentBody", OnSuccess = "onSuccess" }))
+                @using (Ajax.BeginForm("_BillsStatistic", "Cook", new { item = item.Value }, new AjaxOptions() { UpdateTargetId = "componentBody", OnSuccess = "onSuccess" }))
+                {
+
+                    <input type="submit" id="applyId" value="@item.Text" class="btn btn-primary " />
+                }
+                @*<a href="#" class="list-group-item">@item.Text</a>*@
+        @*</div>*@
+        @*}*@
+
+        <!--Без автоперечисления-->
+        <div class="btn-group">
+
+            @using (Ajax.BeginForm("_AllBills", "Cook", new { item = "1" }, new AjaxOptions() { UpdateTargetId = "componentBody", OnSuccess = "onSuccess" }))
             {
 
-            <input type="submit" id="applyId" value="@item.Text" class="btn btn-primary" />
+                <input type="submit" id="applyId" value="@Model.ToList()[0].Text" class="btn btn-primary " />
+
             }
-            @*<a href="#" class="list-group-item">@item.Text</a>*@
         </div>
-        }
+
+        <div class="btn-group">
+            @using (Ajax.BeginForm("_Chart", "Cook", new { item = "2" }, new AjaxOptions() { UpdateTargetId = "componentBody", OnSuccess = "onSuccess" }))
+            {
+
+                <input type="submit" id="applyId" value="@Model.ToList()[1].Text" class="btn btn-primary " />
+
+            }
+        </div>
+
+
 
 
     </div>
+
     <div class="container">
         <p id="componentBody">
-
+        
+          @*  @{ Html.RenderAction("_AllBills", "Cook"); }*@
         </p>
-
     </div>
 </div>
+
 
 <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>

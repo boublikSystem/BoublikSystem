@@ -12,20 +12,40 @@ namespace BoublikSystem.Models
     {
         private static ApplicationDbContext context = new ApplicationDbContext();
         public IEnumerable<WayBill> CookBills { get; set; }
-        public List<WayBill> GetCookBills(string userName, string item, string period = "ALL")
+        public struct Period
         {
-            List<WayBill> userBills = new List<WayBill>();
+            public DateTime Start { get; set; }
+            public DateTime End { get; set; }
+        }
+
+        private Period period;
+
+        public List<WayBill> GetCookBills(string userName, string item,
+            DateTime periodStart = new DateTime(), DateTime periodEnd = new DateTime())
+        {
+            List<WayBill> userBills=new List<WayBill>();
+            List<WayBill> userBillsByPeriod = new List<WayBill>();
+            period = new Period { Start = periodStart, End = periodEnd };
+            userBills = GetUserBills(userName).ToList();
+             userBills = new List<WayBill>(userBills.OrderByDescending(bill => bill.Id));
             if (item == "1")
             {
-                if (period == "ALL")
-                {
-                    userBills = GetUserBills(userName).ToList();
-                }
 
+                if ((period.Start == Convert.ToDateTime("01.01.0001 0:00:00")) ||
+                    (period.End == Convert.ToDateTime("01.01.0001 0:00:00")))
+                    return userBills;
+                
+
+                if (period.Start == period.End)
+                {
+                    userBillsByPeriod.AddRange(userBills.Where(bill => bill.Date.Day == period.End.Day));
+                    return userBillsByPeriod;
+                } //LINQ it's POWER!!!
+                userBillsByPeriod.AddRange(userBills.Where(bill => (bill.Date >= period.Start) && (bill.Date <= period.End)));
+                return userBillsByPeriod;
             }
 
             //TODO: Различные запросы
-
             return userBills;
         }
 

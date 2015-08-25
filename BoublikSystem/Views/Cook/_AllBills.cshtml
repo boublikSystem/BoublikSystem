@@ -1,12 +1,57 @@
-﻿@model BoublikSystem.Models.Statistic
+﻿
+@model BoublikSystem.Models.Statistic
 @{
     ViewBag.Counter = 0;
 
 }
 @*TODO: Настроить отображение таблицы*@
 <h4>Список Отправленных накладных</h4>
-<div class="container">
-    <table class="tableSection" >
+<div class="panel panel-default">
+
+    <!--DatePicker-->
+    @using (Ajax.BeginForm("_AllBills", "Cook", new {item="1"}, new AjaxOptions() { UpdateTargetId = "componentBody", OnSuccess = "onSuccess" }))
+    {
+
+
+        <p><strong>Период</strong></p>
+        <div class="panel-body">
+
+            <div class="form-group">
+                <div class='col-md-1'>
+                    <label>С</label>
+                </div>
+                <div class='col-sm-3'>
+
+                    <input type='text' class="form-control" name ="startDate" id='datetimepicker6' />
+                    @*<span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>*@
+
+
+                </div>
+                <div class='col-md-1'>
+                    <label>По</label>
+                </div>
+                <div class='col-sm-3'>
+
+                    <input type='text' class="form-control" name ="endDate" id="datetimepicker7" />
+                    @*<span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>*@
+                </div>
+                <div class='col'>
+                    <input type="submit" id="applyId" value="Ок" class="btn btn-success" />
+                </div>
+            </div>
+        </div>
+
+    }
+    <br />
+
+
+    <!-------------->
+    <!--change to 'tableSection' CSS-class for switch on scroll-->
+    <table class="table-bordered table-striped">
         <thead>
             <tr>
                 <th>
@@ -27,7 +72,7 @@
                 <th></th>
             </tr>
         </thead>
-        <tbody >
+        <tbody>
             @foreach (var bill in Model.CookBills.ToList())
             {
                 <tr>
@@ -50,13 +95,34 @@
                     @*<td><input type="button" value="Details"/></td>*@
                     <td>
                         @using (Html.BeginForm("_BillDetails", "Cook", new { id = bill.Id }))
-                    {
-                        <input type="submit" value="Просмотр" />
-                    }
-                </td>
-            </tr>
+                        {
+                            <input type="submit" value="Просмотр" />
+                        }
+                    </td>
+                </tr>
             }
         </tbody>
     </table>
 
 </div>
+<script type="text/javascript">
+    $(function () {
+
+        $('#datetimepicker6').datetimepicker({
+            format: 'DD/MM/YY'
+        });
+        $('#datetimepicker7').datetimepicker({
+            useCurrent: true, //Important! See issue #1075
+            format: 'DD/MM/YY'
+        });
+        $("#datetimepicker6").on("dp.change", function (e) {
+            $('#datetimepicker7').data("DateTimePicker").minDate(e.date, "MM/DD/YYYY");
+
+        });
+        $("#datetimepicker7").on("dp.change", function (e) {
+            $('#datetimepicker6').data("DateTimePicker").maxDate(e.date, "MM/DD/YYYY");
+        });
+
+        $('#datetimepicker6').val();
+    });
+</script>
