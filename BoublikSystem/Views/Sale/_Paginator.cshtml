@@ -1,0 +1,39 @@
+﻿@model ViewDataDictionary
+
+@{
+    if ((int)Model["PageCount"] > 1)
+    {
+
+        <nav>
+            <ul class="pagination">
+                <li>
+                    @Ajax.ActionLink("<<", "_SearchResult", new {pageNumber = -1, str = "prev"}, new AjaxOptions {UpdateTargetId = "paginatorId"})
+
+                </li>
+
+
+                @for (int i = 0; i < (int)Model["PageCount"]; i++)
+                {
+
+                    if (i == (int)Model["CurrentPage"])
+                    {
+                        <li class="active">@Ajax.ActionLink((i + 1).ToString(), "_SearchResult", new {pageNumber = i}, new AjaxOptions {UpdateTargetId = "paginatorId"}, new {})</li>
+                    }
+                    else
+                    {
+                        <li>@Ajax.ActionLink((i + 1).ToString(), "_SearchResult", new {pageNumber = i}, new AjaxOptions {UpdateTargetId = "paginatorId"})</li>
+                    }
+
+                }
+
+                <li>
+                    @Ajax.ActionLink(">>", "_SearchResult", new {pageNumber = -1, str = "next"}, new AjaxOptions {UpdateTargetId = "paginatorId"})
+                </li>
+            </ul>
+        </nav>
+
+
+    }
+}
+
+
