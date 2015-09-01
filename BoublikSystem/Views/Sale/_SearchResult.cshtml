@@ -1,2 +1,40 @@
-﻿
-<p>New result</p>
+﻿@using BoublikSystem.HtmlHelpers
+@model IEnumerable<BoublikSystem.Entities.Bill>
+
+<table class="table">
+    <tbody id="tbodyUpdate">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.DataTime</td>
+                <td>@item.Amount</td>
+                <td>
+                    @{
+            var products = item.Products.ToList();
+
+            for (int i = 0; i < products.Count; i++)
+            {
+                <span>@string.Format(" [" + products[i].Product.Name + "] ")</span>
+
+                if (i == 2)
+                {
+                    <span>...</span>
+                    break;
+                }
+            }
+                    }
+                </td>
+                <td>
+                    @using (Ajax.BeginForm("CancelBill", new { billId = item.Id }, new AjaxOptions { UpdateTargetId = "mainContent" }, new { }))
+                    {
+                        <input type="submit" value="Отменить чек" onclick=" return confirm('Вы действительно хотите отменить чек?') " />
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<ul>
+    @Html.PageLinks("/Sale/SearchResult?pageNumber=", (int)ViewBag.PageCount,(int)ViewBag.CurrentPage,"#mainContent")
+</ul>

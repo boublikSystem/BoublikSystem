@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Web;
@@ -10,18 +11,15 @@ using BoublikSystem.Models;
 
 namespace BoublikSystem.Controllers
 {
-    public class ChangeSaleModel
-    {
-        public Product Product { get; set; }
-        public double Count { get; set; }
-    }
-
     [Authorize(Roles = "seller, admin")]
     public class SaleController : Controller
     {
         private static ApplicationDbContext _context = new ApplicationDbContext();// БД
         private static Dictionary<Product, double> _recivedProducts = new Dictionary<Product, double>(); // дабавленые продукты в накладную
         private static Dictionary<Product, double> _currentBill = new Dictionary<Product, double>(); //текущий чек
+        private static List<Bill> _currentSearchList = new List<Bill>();
+        private static int _currentSearchPageIndex = 0;
+        private static int pagesCount = 0;
 
         // GET: Sale
         public ActionResult Index()
@@ -44,7 +42,7 @@ namespace BoublikSystem.Controllers
 
                 _context.Bills.Add(bill);
 
-                
+
 
                 foreach (var item in _currentBill)
                 {
@@ -259,43 +257,78 @@ namespace BoublikSystem.Controllers
 
         public ActionResult BillCancellation()
         {
-            var searchBySum = Request["searchBySum"];
-            var searchByProduct = Request["searchByProduct"];
-            var searchByDay = Request["searchByDay"];
+            int sellerLocation = GetSellerLocation();
+            var item = DateTime.Now.Date;
+            var list = _context.Bills.OrderByDescending(u => u.DataTime).Where(b => (b.SalePointId == sellerLocation)).Take(1000).ToList();
 
+            _currentSearchList.Clear();
 
-            if (Request.IsAjaxRequest())
+            //Bill for current day
+            foreach (var bill in list)
             {
-                string str = Request["str"];
-
-                return PartialView("_SearchResult");
+                if(bill.DataTime.Date == item.Date)
+                    _currentSearchList.Add(bill);
             }
 
-            return View();
+            pagesCount = GetPageCount(_currentSearchList);
+
+            return View(GetBillSearchModel());
         }
 
-        public ActionResult DefaultSearchResult()
+        [HttpPost]
+        public ActionResult BillCancellation(BillSearchModel searchModel)
+        {
+            if (Request.IsAjaxRequest())
+            {
+
+
+                return PartialView();
+            }
+
+            int sellerLocation = GetSellerLocation();
+
+            _currentSearchList = _context.Bills.OrderByDescending(u => u.DataTime).Where(b => (b.SalePointId == sellerLocation) & (b.DataTime.Date == DateTime.Now.Date)).ToList();
+
+            return View(searchModel);
+        }
+
+        public PartialViewResult SearchResult(int pageNumber = 0, string serchByProductName = null)
         {
             int sellerLocation = GetSellerLocation();
 
-            var list = _context.Bills.OrderByDescending(u=>u.DataTime).Take(10).Where(b => b.SalePointId == sellerLocation).ToList();
+            _currentSearchPageIndex = pageNumber;
 
-            return PartialView(list);
+            var listForSearch = _currentSearchList.Skip(_currentSearchPageIndex * 10).Take(10).Where(b => b.SalePointId == sellerLocation).ToList();
+
+            ViewBag.PageCount = GetPageCount(_currentSearchList);
+            ViewBag.CurrentPage = _currentSearchPageIndex;
+
+
+            return PartialView("_SearchResult", listForSearch);
         }
 
         public ActionResult CancelBill(int billId)
         {
             var bill = _context.Bills.Find(billId);
             int sellerLocation = GetSellerLocation();
-            
-            AddBillToStorage(bill,sellerLocation);
-            
+
+            AddBillToStorage(bill, sellerLocation);
+
+            _currentSearchList.Remove(bill);
             _context.Bills.Remove(bill);
             _context.SaveChanges();
 
-            var list = _context.Bills.OrderByDescending(u => u.DataTime).Take(10).Where(b => b.SalePointId == sellerLocation).ToList();
+            ViewBag.PageCount = GetPageCount(_currentSearchList);
 
-            return PartialView("DefaultSearchResult",list);
+            if ((_currentSearchList.Count % 10) == 0)
+                _currentSearchPageIndex -= 1;
+
+            ViewBag.CurrentPage = _currentSearchPageIndex;
+
+            var list = _currentSearchList.Skip(_currentSearchPageIndex * 10).Take(10).Where(b => b.SalePointId == sellerLocation).ToList();
+
+
+            return PartialView("_SearchResult", list);
         }
 
         private int GetSellerLocation()
@@ -318,6 +351,33 @@ namespace BoublikSystem.Controllers
 
                 storage.Add(saleStorage);
             }
+        }
+
+        private BillSearchModel GetBillSearchModel()
+        {
+            return new BillSearchModel
+            {
+                DateTime = DateTime.Now
+            };
+        }
+
+        private int GetPageCount(List<Bill> bills)
+        {
+            double x = Math.Truncate(bills.Count / 10.0);
+            double result = bills.Count / 10.0;
+
+            result -= x;
+
+            if (result > 0)
+                x += 1;
+
+            return (int)x;
+
+        }
+
+        private void ParseSearchModel(BillSearchModel search)
+        {
+            _currentSearchList = _context.Bills.Where(b => b.DataTime.Date == search.DateTime.Date).ToList();
         }
     }
 

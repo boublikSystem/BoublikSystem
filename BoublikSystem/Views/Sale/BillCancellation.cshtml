@@ -1,33 +1,36 @@
-﻿@{
+﻿@model BoublikSystem.Models.BillSearchModel
+
+@{
     ViewBag.Title = "BillCancellation";
 }
 
-<p>Критерии поиска</p>
+@*<p>Критерии поиска</p>
 
-@using (Ajax.BeginForm(new AjaxOptions { UpdateTargetId = "mainContent" }))
-{
-    <input type="text" value="" id="searchBySum" placeholder="Поиск по сумме чека" />
-    <input type="text" value="" id="searchByProduct" placeholder="Поиск по названию продукта" />
-    <input type="date" id="searchByDay" placeholder="Поиск по дням"/>
-    <input type="submit" value="Search"/>
-    
-}
-<hr />
+    @using (Ajax.BeginForm("/Sale/SearchResult",new {},new AjaxOptions { UpdateTargetId = "mainContent", HttpMethod = "POST" }))
+    {
+        @*<input type="number" name="Sum" id="searchBySum" placeholder="Поиск по сумме чека" />
+        <input type="text" name="Product" id="searchByProduct" placeholder="Поиск по названию продукта" />
+        <input type="submit" value="Поиск" />
+    }
+    <hr />
 
-<p>Результат поиска</p>
+    <p>Результат поиска</p>*@
+<h2>Последние чеки за сегодня</h2>
 <div class="row">
-    <div class="col-sm-6 col-md-6"></div>
-    <table class="table ">
-        <tr>
-            <td>Дата</td>
-            <td>Сумма</td>
-            <td>Чек включает</td>
-            <td>Действие</td>
-        </tr>
-        <tbody id="mainContent">
-            @{ Html.RenderAction("DefaultSearchResult");}
-        </tbody>
-    </table>
+    <div class="col-sm-12 col-md-12">
+        <table class="table ">
+            <tr>
+                <td>Дата</td>
+                <td>Сумма</td>
+                <td>Чек включает</td>
+                <td>Действие</td>
+            </tr>
+        </table>
+        <div id="mainContent">
+            @{ Html.RenderAction("SearchResult", new { pageNumber = 0 }); }
+        </div>
+    </div>
 </div>
+
 
 <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>

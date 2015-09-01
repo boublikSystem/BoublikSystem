@@ -1,29 +1,29 @@
 ﻿// JavaScript source code
 
 // отображение модального окна для ссылок с класамми .compItem
-function displayDialog () {
-        $.ajaxSetup({ cache: false });
-        $(".compItem").click(function (e) {
+//function displayDialog(e) {
 
-            e.preventDefault();
-            $.get(this.href, function (data) {
-                $('#dialogContent').html(data);
-                $('#modDialog').modal('show');
-            });
-        });
-}
+//    //$(".compItem").click(function (e) {
+
+//    //    e.preventDefault();
+//    //    $.get(this.href, function (data) {
+//    //        $('#dialogContent').html(data);
+//    //        $('#modDialog').modal('show');
+//    //    });
+//    //});
+//}
 
 //http://stackoverflow.com/questions/203198/event-binding-on-dynamically-created-elements
-//$(".compItem").on("click", ".compItem", function() {
-//    $.ajaxSetup({ cache: false });
-//    $(".compItem").click(function (e) {
+//$("#selectedProducts2").on("click", ".compItem", function () {
+//    //$.ajaxSetup({ cache: false });
+//    //$(".compItem").click(function (e) {
 
-//        e.preventDefault();
-//        $.get(this.href, function (data) {
-//            $('#dialogContent').html(data);
-//            $('#modDialog').modal('show');
-//        });
-//    });
+//    //    e.preventDefault();
+//    //    $.get(this.href, function (data) {
+//    //        $('#dialogContent').html(data);
+//    //        $('#modDialog').modal('show');
+//    //    });
+//    //});
 //});
 
 // изменяет количество полученный продуктов
@@ -64,7 +64,7 @@ function checkCount() {
         submit.setAttribute("disabled", "");
         alerMsg.innerHTML = "Недостаточное количество продукта";
 
-    } 
+    }
     else if (inputCount <= 0) {
         submit.setAttribute("disabled", "");
         alerMsg.innerHTML = "Введите правильное количество продукта";
@@ -96,7 +96,7 @@ function textChanged() {
 
 
 // кнопка удаления из списка полученных товаров
-function deleteFromBill () {
+function deleteFromBill() {
     var countId = document.getElementById("countAdded").innerHTML;
     var productId = document.getElementById("hiddenId").value;
     var elementToUpDate = "#update" + productId;
@@ -124,5 +124,5 @@ function cancelFunc() {
 }
 
 
-   
-    
+
+
