@@ -7,7 +7,7 @@
         @using (Ajax.BeginForm("AddProductToBill", "Sale", new { productId = Model }, new AjaxOptions() { UpdateTargetId = "selectedProducts" }))
         {
             <input type="hidden" value="@Model" id="hiddenId" />
-            <input type="number" class="form-control" id="countId" name="countField" value="" onkeyup=" checkCount() " autofocus="" />
+            <input type="number" class="form-control" id="countId" name="countField" value="" onkeyup="checkCount()" onchange="checkCount()" />
             <input type="submit" id="applyId" value="Отправить" disabled="" onclick="applyFunc()" />
         }
 

@@ -13,35 +13,41 @@
             </td>
         </tr>*@
 
+    @*@Html.ActionLink(item.Key.Name, "AskForCount", "Sale",
+        new {productId = item.Key.Id},
+        new {@class = "compItem", id = item.Key.Id})*@
 
-    <div class="col-md-2 col-sm-3 col-xs-4" id="@string.Format("{0}{1}", "update", item.Key.Id)">
-        <div class="panel panel-primary">
-            <div class="panel-body">
-                <p>
-                    <small class="">
-                        @{
-    if (item.Value > 0)
-    {
-        <b>
-            @Html.ActionLink(item.Key.Name, "AskForCount", "Sale",
-                                    new { productId = item.Key.Id },
-                                    new { @class = "compItem", onclick = "displayDialog()" })
-        </b>
-    }
-    else
-    {
-        <del>
-            @item.Key.Name
-        </del>
-    }
-                        }
-                    </small>
-                </p>
+    <a id="@string.Format("{0}{1}", "update", item.Key.Id)"
+       href="@string.Format("{0}{1}", "/Sale/AskForCount?productId=", item.Key.Id)"
+       class="compItem">
+        
+        <div class="col-md-2 col-sm-3 col-xs-4">
+            <div class="panel panel-primary">
+                <div class="panel-body">
+                    <p>
+                        <small class="">
+                            @{
+                                if (item.Value > 0)
+                                {
+                                    <b>
+                                        @item.Key.Name
+                                    </b>
+                                }
+                                else
+                                {
+                                    <del>
+                                        @item.Key.Name
+                                    </del>
+                                }
+                            }
+                        </small>
+                    </p>
 
-                <small class="">Кол: <span id="@string.Format("{0}{1}", "productCountId", item.Key.Id)">@item.Value</span></small>
-                <small class="">Цена: @item.Key.Price</small>
+                    <small class="" style="color: black;">Кол: <span id="@string.Format("{0}{1}", "productCountId", item.Key.Id)">@item.Value</span></small>
+                    <small class="" style="color: black;">Цена: @item.Key.Price</small>
+                </div>
             </div>
         </div>
-    </div>
+    </a>
 
 }

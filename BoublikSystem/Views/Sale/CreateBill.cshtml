@@ -64,7 +64,7 @@
 
     @Html.ActionLink("Рассчитать", "Calculate", "Sale",
         new {},
-        new {@class = "compItem"})
+        new {@class = "compItem btn btn-primary"})
 
     <div id="modDialog" class="modal fade">
         <div id="dialogContent" class="modal-dialog"></div>
@@ -78,13 +78,15 @@
 <script src="~/Scripts/jsForDialog.js"></script>
 
 <script>
-    $.ajaxSetup({ cache: false });
-    $(".compItem").click(function (e) {
+    $(document).ready(function() {
+        $.ajaxSetup({ cache: false });
+        $(".compItem").click(function (e) {
 
-        e.preventDefault();
-        $.get(this.href, function (data) {
-            $('#dialogContent').html(data);
-            $('#modDialog').modal('show');
+            e.preventDefault();
+            $.get(this.href, function (data) {
+                $('#dialogContent').html(data);
+                $('#modDialog').modal('show');
+            });
         });
     });
 </script>
