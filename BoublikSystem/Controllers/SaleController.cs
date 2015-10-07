@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Web;
+using System.Web.Management;
 using System.Web.Mvc;
 using System.Web.Script;
 using BoublikSystem.Entities;
@@ -266,7 +267,7 @@ namespace BoublikSystem.Controllers
             //Bill for current day
             foreach (var bill in list)
             {
-                if(bill.DataTime.Date == item.Date)
+                if (bill.DataTime.Date == item.Date)
                     _currentSearchList.Add(bill);
             }
 
@@ -329,6 +330,63 @@ namespace BoublikSystem.Controllers
 
 
             return PartialView("_SearchResult", list);
+        }
+
+        // таблица с продукцией для списания
+        public ActionResult WritingOff()
+        {
+            int sellerLocation = GetSellerLocation();
+            var storage = _context.SalePoints.Find(sellerLocation).Storage.ToList();
+            return View(storage);
+        }
+
+        // Запрос на списание конкретного товара
+        public ActionResult ProductToWritingOff(int productId)
+        {
+            int sellerLocation = GetSellerLocation();
+            var item = _context.SalePoints.Find(sellerLocation).Storage;
+            double count = item.First(p => p.ProductId == productId).Count;
+            string name = item.First(p => p.ProductId == productId).Product.Name;
+
+            ViewBag.Count = count;
+            ViewBag.ProductName = name;
+
+            var woff = new WritingOffProduct { ProductId = productId };
+
+            return View(woff);
+        }
+
+        // Получения информации для списания
+        [HttpPost]
+        public ActionResult ProductToWritingOff(WritingOffProduct product)
+        {
+            if (ModelState.IsValid)
+            {
+                ViewBag.ProductName = _context.Products.Find(product.ProductId).Name;
+                return View("ConfirmWritingOff", product);
+            }
+
+            return View(product);
+        }
+
+        // Полученное подтверждение для списания
+        // удаления со склада, добавления в таблицу о списании
+        [HttpPost]
+        public ActionResult ConfirmWritingOff(WritingOffProduct product)
+        {
+            int sellerLocation = GetSellerLocation();
+            var storage = _context.SalePoints.Find(sellerLocation).Storage
+                .First(p => p.ProductId == product.ProductId).Count -= product.Count;
+            product.Date = DateTime.Now;
+            product.SalePointId = sellerLocation;
+            product.UserId = _context.Users.First(u => u.UserName == User.Identity.Name).Id;
+            _context.WritingOffProducts.Add(product);
+            _context.SaveChanges();
+
+            
+            var listOfProducts = _context.SalePoints.Find(sellerLocation).Storage.ToList();
+
+            return View("WritingOff",listOfProducts);
         }
 
         private int GetSellerLocation()

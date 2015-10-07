@@ -1,0 +1,31 @@
+﻿@model BoublikSystem.Entities.WritingOffProduct
+
+@{
+    ViewBag.Title = "ConfirmWritingOff";
+}
+
+<div class="col-sm-12">
+    <h2>Вы действительно хотите списать продукт?</h2>
+    <table class="table">
+        <tr>
+            <th>Продукт</th>
+            <td>@ViewBag.ProductName</td>
+        </tr>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Count)</th>
+            <td>@Model.Count</td>
+        </tr>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Message)</th>
+            <td>@Model.Message</td>
+        </tr>
+    </table>
+</div>
+
+<p>
+    @using (Html.BeginForm("ConfirmWritingOff", "Sale", Model))
+    {
+        <input class="btn btn-danger" type="submit" value="Списать"/>
+        @Html.ActionLink("Не списывать", "WritingOff", null, new { @class = "btn btn-default" })
+    }
+</p>

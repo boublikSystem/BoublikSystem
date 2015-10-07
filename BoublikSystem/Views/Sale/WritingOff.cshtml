@@ -1,0 +1,36 @@
+﻿@model IEnumerable<BoublikSystem.Entities.SaleStorage>
+@{
+    ViewBag.Title = "WritingOff";
+}
+
+<h2>Выберите продукт для списания</h2>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6">
+            <table class="table">
+                <thead>
+                <tr>
+                    <td>Название</td>
+                    <td>Количество</td>
+                    <td>Цена</td>
+                    <td>Действие</td>
+                </tr>
+                </thead>
+                <tbody id="tbodyWritingOff">
+                    @{
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Product.Name</td>
+                                <td>@item.Count</td>
+                                <td>@item.Product.Price</td>
+                                <td>@Html.ActionLink("Списать","ProductToWritingOff",new {productId = item.Product.Id}, new { @class="btn btn-default"})</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -7,6 +7,7 @@ using BoublikSystem.Entities;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace BoublikSystem.Models
@@ -25,6 +26,8 @@ namespace BoublikSystem.Models
        // [Required(ErrorMessage = "The {0} must be at least {2} characters long.")]
         public int SallerLocation { get; set; }
         public string SelectedRole { get; set; }
+        [ForeignKey("SallerLocation")]
+        public virtual SalePoint SalePoint { get; set; }
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
@@ -47,7 +50,9 @@ namespace BoublikSystem.Models
         public DbSet<WayBill> WayBills { get; set; }
         public DbSet<ProductToBill> ProductToBills { get; set; }
         public DbSet<Bill> Bills { get; set; }
-        
+        public DbSet<WritingOffProduct> WritingOffProducts { get; set; }
+
+        //public System.Data.Entity.DbSet<BoublikSystem.Models.WritingOffModel> WritingOffModels { get; set; }
         
         //public System.Data.Entity.DbSet<BoublikSystem.Models.ApplicationUser> ApplicationUsers { get; set; }
     }
