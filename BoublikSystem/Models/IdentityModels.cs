@@ -26,8 +26,8 @@ namespace BoublikSystem.Models
        // [Required(ErrorMessage = "The {0} must be at least {2} characters long.")]
         public int SallerLocation { get; set; }
         public string SelectedRole { get; set; }
-        [ForeignKey("SallerLocation")]
-        public virtual SalePoint SalePoint { get; set; }
+        //[ForeignKey("SallerLocation")]
+        //public virtual SalePoint SalePoint { get; set; }
     }
 
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>

@@ -14,7 +14,7 @@ namespace BoublikSystem.Entities
         public int ProductId { get; set; }
         public string UserId { get; set; }
         public int SalePointId { get; set; }
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
 
         [Required(ErrorMessage = "Введите причину списания!")]
         [Display(Name = "Причина списания")]
