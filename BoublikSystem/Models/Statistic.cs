@@ -38,7 +38,7 @@ namespace BoublikSystem.Models
 
                 if (period.Start == period.End)
                 {
-                    userBillsByPeriod.AddRange(userBills.Where(bill => bill.Date.Day == period.End.Day));
+                    userBillsByPeriod.AddRange(userBills.Where(bill => ((DateTime)(bill.Date)).Day == period.End.Day));
                     return userBillsByPeriod;
                 } //LINQ it's POWER!!!
                 userBillsByPeriod.AddRange(userBills.Where(bill => (bill.Date >= period.Start) && (bill.Date <= period.End)));

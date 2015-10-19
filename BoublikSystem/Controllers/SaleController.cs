@@ -10,6 +10,7 @@ using System.Web.Script;
 using BoublikSystem.Entities;
 using BoublikSystem.Models;
 
+
 namespace BoublikSystem.Controllers
 {
     [Authorize(Roles = "seller, admin")]
@@ -20,16 +21,18 @@ namespace BoublikSystem.Controllers
         private static Dictionary<Product, double> _currentBill = new Dictionary<Product, double>(); //текущий чек
         private static List<Bill> _currentSearchList = new List<Bill>();
         private static int _currentSearchPageIndex = 0;
-        private static int pagesCount = 0;
+        private static int _pagesCount = 0;
 
         // GET: Sale
         public ActionResult Index()
         {
+            
             return View();
         }
 
         public ActionResult CreateBill()
         {
+            // [HttpPost]
             if (Request.IsAjaxRequest())
             {
                 int salePoint = GetSellerLocation();
@@ -37,14 +40,13 @@ namespace BoublikSystem.Controllers
                 Bill bill = new Bill
                 {
                     Amount = CalculateAmount(),
-                    DataTime = DateTime.Now,
+                    DateTime = DateTime.Now,
                     SalePointId = salePoint
                 };
 
                 _context.Bills.Add(bill);
 
-
-
+                // записать елементы чека (продукт) в БД
                 foreach (var item in _currentBill)
                 {
                     ProductToBill productToBill = new ProductToBill();
@@ -55,7 +57,6 @@ namespace BoublikSystem.Controllers
 
                     _context.ProductToBills.Add(productToBill);
 
-
                     #region Delete product count from storage
 
                     _recivedProducts[item.Key] -= item.Value;
@@ -64,33 +65,18 @@ namespace BoublikSystem.Controllers
                         .ToList()
                         .Find(p => p.ProductId == item.Key.Id)
                         .Count -= item.Value;
-                    //double rest = item.Value;
-                    //foreach (var variable in _context.ProductToWayBills.Where(w => w.ProductId == item.Key.Id))
-                    //{
-                    //    if (variable.Count >= rest)
-                    //    {
-                    //        variable.Count -= rest;
-                    //        break;
-                    //    }
-                    //    else
-                    //    {
-                    //        rest -= variable.Count;
-                    //        variable.Count -= variable.Count;
-                    //    }
-                    //}
 
                     #endregion
                 }
 
                 _context.SaveChanges();
 
-
                 _currentBill.Clear();
 
                 return PartialView("AddProductToBill", _currentBill);
             }
 
-            _recivedProducts = GetProduct();
+            _recivedProducts = GetProducts();
             _currentBill.Clear();
             return View(_recivedProducts);
         }
@@ -106,8 +92,8 @@ namespace BoublikSystem.Controllers
         }
 
         /// <summary>
-        /// Метод обрабатывает нажатие на ссылку "Добавить"
-        /// и добавляет продукт в чек
+        /// Метод обрабатывает нажатие на ссылку "Добавить",
+        /// добавляет продукт в чек
         /// </summary>
         /// <param name="productId">Ид продукта</param>
         /// <returns></returns>
@@ -137,7 +123,8 @@ namespace BoublikSystem.Controllers
         }
 
         /// <summary>
-        /// Обновляет список товаров добавленный в чек
+        /// Удаляем товар
+        /// Обновляет список "Формирование чека"
         /// </summary>
         /// <param name="productId"></param>
         /// <returns></returns>
@@ -153,7 +140,7 @@ namespace BoublikSystem.Controllers
         /// <summary>
         /// Метод нахождения всех накладных и продуктов, которые в них есть
         /// </summary>
-        private Dictionary<Product, double> GetProduct()
+        private Dictionary<Product, double> GetProducts()
         {
             string userName = User.Identity.Name;
 
@@ -173,22 +160,6 @@ namespace BoublikSystem.Controllers
                     allProductsWithCount.Add(item.Product, item.Count);
                 }
             }
-
-            //foreach (var wayBill in wayBills)
-            //{
-            //    foreach (var item in wayBill.ProductToWayBills.ToList())
-            //    {
-            //        if (allProductsWithCount.ContainsKey(item.Product))
-            //        {
-            //            allProductsWithCount[item.Product] += item.Count;
-            //        }
-            //        else
-            //        {
-            //            allProductsWithCount.Add(item.Product, item.Count);
-            //        }
-
-            //    }
-            //}
 
             return allProductsWithCount;
         }
@@ -232,7 +203,6 @@ namespace BoublikSystem.Controllers
 
             _recivedProducts[product] += Convert.ToDouble(productCount);
 
-            //string strToChange = string.Format("{0} {1}", _recivedProducts[product], product.MeasurePoint);
             string strToChange = _recivedProducts[product].ToString();
 
             ChangeSaleModel cahSaleModel = new ChangeSaleModel
@@ -260,18 +230,18 @@ namespace BoublikSystem.Controllers
         {
             int sellerLocation = GetSellerLocation();
             var item = DateTime.Now.Date;
-            var list = _context.Bills.OrderByDescending(u => u.DataTime).Where(b => (b.SalePointId == sellerLocation)).Take(1000).ToList();
+            var list = _context.Bills.OrderByDescending(u => u.DateTime).Where(b => (b.SalePointId == sellerLocation)).Take(1000).ToList();
 
             _currentSearchList.Clear();
 
             //Bill for current day
             foreach (var bill in list)
             {
-                if (bill.DataTime.Date == item.Date)
+                if (((DateTime)(bill.DateTime)).Date == item.Date)
                     _currentSearchList.Add(bill);
             }
 
-            pagesCount = GetPageCount(_currentSearchList);
+            _pagesCount = GetPageCount(_currentSearchList);
 
             return View(GetBillSearchModel());
         }
@@ -288,7 +258,8 @@ namespace BoublikSystem.Controllers
 
             int sellerLocation = GetSellerLocation();
 
-            _currentSearchList = _context.Bills.OrderByDescending(u => u.DataTime).Where(b => (b.SalePointId == sellerLocation) & (b.DataTime.Date == DateTime.Now.Date)).ToList();
+            _currentSearchList = _context.Bills.OrderByDescending(u => u.DateTime)
+                .Where(b => (b.SalePointId == sellerLocation) & (((DateTime)(b.DateTime)).Date == DateTime.Now.Date)).ToList();
 
             return View(searchModel);
         }
@@ -435,7 +406,7 @@ namespace BoublikSystem.Controllers
 
         private void ParseSearchModel(BillSearchModel search)
         {
-            _currentSearchList = _context.Bills.Where(b => b.DataTime.Date == search.DateTime.Date).ToList();
+            _currentSearchList = _context.Bills.Where(b => ((DateTime)(b.DateTime)).Date == search.DateTime.Date).ToList();
         }
     }
 

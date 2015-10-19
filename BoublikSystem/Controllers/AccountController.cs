@@ -92,6 +92,10 @@ namespace BoublikSystem.Controllers
 
                     if (UserManager.IsInRole(id,"cook"))
                         return RedirectToLocal("/cook/index");
+                    else if(UserManager.IsInRole(id,"seller"))
+                        return RedirectToLocal("/sale/index");
+                    else if (UserManager.IsInRole(id,"admin"))
+                        return RedirectToLocal("/admin/index");
                     else
                     {
                         return RedirectToLocal(returnUrl);
